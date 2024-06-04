@@ -16,4 +16,9 @@ public interface UserService {
     void withdraw(String username, String password);
     // 리프레시 토큰
     TokenResponseDto refresh(String refreshToken);
+
+    // 이메일 인증
+    boolean verifyEmail(String username, String verificationCode);
+    // 이메일 업데이트 - 이메일이 잘못된 회원가입
+    void updateEmail(SignupRequest signupRequest);
 }

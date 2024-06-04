@@ -7,8 +7,15 @@ import com.sparta.oneandzerobest.auth.util.JwtUtil;
 import com.sparta.oneandzerobest.exception.InfoNotCorrectedException;
 import com.sparta.oneandzerobest.exception.InvalidPasswordException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
+import java.util.Random;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @Slf4j
@@ -16,11 +23,18 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
+    private final RedisTemplate<String, String> redisTemplate;
     private final JwtUtil jwtUtil;
+    private final Random random = new Random();
 
-    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
+    @Value("${app.email.verification.expiry}")
+    private long verificationExpiry;
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, EmailService emailService, RedisTemplate<String, String> redisTemplate, JwtUtil jwtUtil) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.emailService = emailService;
+        this.redisTemplate = redisTemplate;
         this.jwtUtil = jwtUtil;
     }
 
@@ -42,7 +56,16 @@ public class UserServiceImpl implements UserService {
             throw new IllegalArgumentException("비밀번호는 최소 10자 이상이며 알파벳 대소문자, 숫자, 특수문자를 포함해야 합니다.");
         }
 
-        if (userRepository.findByUsername(authId).isPresent()) {
+       // if (userRepository.findByUsername(authId).isPresent()) {
+        Optional<User> existingUser = userRepository.findByUsername(authId);
+        if (existingUser.isPresent()) {
+            User user = existingUser.get();
+            if ("인증 전".equals(user.getStatusCode())) {
+                // 인증 전 상태일 때는 이메일을 업데이트하고 새로운 인증 이메일을 보냄
+                updateEmail(signupRequest);
+                return;
+
+            }
             throw new InfoNotCorrectedException("중복된 사용자 ID가 존재합니다.");
         }
 
@@ -54,8 +77,27 @@ public class UserServiceImpl implements UserService {
         String encodedPassword = passwordEncoder.encode(password);
         User user = new User(authId, encodedPassword, signupRequest.getUsername(), email, "정상");
         userRepository.save(user);
+        sendVerificationEmail(user);
+    }
+    /**
+     * 인증 코드 생성: 6자리 랜덤 숫자를 생성
+     * @return 인증 코드
+     */
+    private String generateVerificationCode() {
+        return String.valueOf(100000 + random.nextInt(900000));
     }
 
+    /**
+     * 인증 이메일 발송: 이메일로 인증 코드를 발송
+     * @param user 회원 정보
+     */
+    private void sendVerificationEmail(User user) {
+        String verificationCode = generateVerificationCode();
+        // Redis에 인증 코드를 저장하고 3분 유지
+        redisTemplate.opsForValue().set(user.getUsername(), verificationCode, verificationExpiry, TimeUnit.MINUTES);
+        String text = String.format("귀하의 인증 코드는 %s 입니다.", verificationCode);
+        emailService.sendEmail(user.getEmail(), "이메일 인증", text);
+    }
     /**
      * 로그인: ACCESS TOKEN, REFRESH TOKEN 생성
      * 비밀번호: 암호화
@@ -76,6 +118,9 @@ public class UserServiceImpl implements UserService {
             throw new InfoNotCorrectedException("탈퇴한 사용자입니다.");
         }
 
+        if ("인증 전".equals(user.getStatusCode())) {
+            throw new InfoNotCorrectedException("이메일 인증이 필요합니다.");
+        }
         String accessToken = jwtUtil.createAccessToken(user.getUsername());
         String refreshToken = jwtUtil.createRefreshToken(user.getUsername());
 
@@ -141,5 +186,35 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
 
         return new TokenResponseDto(newAccessToken, newRefreshToken);
+    }
+
+    /**
+     * 이메일 인증: 입력한 인증 코드를 검증
+     * @param username 사용자 이름
+     * @param verificationCode 입력한 인증 코드
+     * @return 인증 성공 여부
+     */
+    @Override
+    public boolean verifyEmail(String username, String verificationCode) {
+        String storedCode = redisTemplate.opsForValue().get(username);
+        if (storedCode != null && storedCode.equals(verificationCode)) {
+            Optional<User> userOptional = userRepository.findByUsername(username);
+            if (userOptional.isPresent()) {
+                User user = userOptional.get();
+                user.setStatusCode("정상");  // 인증이 성공하면 정상
+                userRepository.save(user);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public void updateEmail(SignupRequest signupRequest) {
+        User user = userRepository.findByUsername(signupRequest.getUsername())
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+        user.setEmail(signupRequest.getEmail());
+        userRepository.save(user);
+        sendVerificationEmail(user);
     }
 }

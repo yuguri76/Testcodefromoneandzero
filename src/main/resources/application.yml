@@ -5,11 +5,29 @@ spring:
     url: jdbc:mysql://localhost:3306/siumechu
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
-    password: password
+    password: Ekalekal1@
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     show-sql: true
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: {이부분에}
+    password: {보내드린거 복붙하고 올릴때는 다시 지워주세요!}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+app:
+   email:
+    verification:
+      subject: 이메일 인증
+      text: 귀하의 인증 코드는 %s 입니다.
+      expiry: 3
 
 jwt:
   secret:
