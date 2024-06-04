@@ -169,6 +169,11 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
     }
 
+    /**
+     * 리프레시 토큰으로 토큰 재발급
+     * @param refreshToken
+     * @return
+     */
     @Override
     public TokenResponseDto refresh(String refreshToken) {
         String username = jwtUtil.getUsernameFromToken(refreshToken);
@@ -209,6 +214,10 @@ public class UserServiceImpl implements UserService {
         return false;
     }
 
+    /**
+     * 회원가입중 이메일이 잘못되었을 경우 추가
+     * @param signupRequest
+     */
     @Override
     public void updateEmail(SignupRequest signupRequest) {
         User user = userRepository.findByUsername(signupRequest.getUsername())
