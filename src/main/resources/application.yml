@@ -5,10 +5,20 @@ spring:
     url: jdbc:mysql://localhost:3306/siumechu
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
-    password: password
+    password: Ekalekal1@
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
+
+jwt:
+  secret:
+    key: e36f112d-c6f2-466f-aad8-14dcdc16360b
+  token:
+    expiration: 3600000
+  refresh:
+    token:
+      expiration: 604800000
+
 server:
   port: 8080
