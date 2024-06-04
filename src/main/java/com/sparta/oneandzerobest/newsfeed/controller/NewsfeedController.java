@@ -24,13 +24,13 @@ public class NewsfeedController {
     private final NewsfeedService contentService;
 
     @PostMapping("/contents")
-    public ResponseEntity<NewsfeedResponseDto> postContent(@Valid @RequestBody NewsfeedRequestDto contentRequestDto) {
+    public ResponseEntity<NewsfeedResponseDto> postNewsfeed(@Valid @RequestBody NewsfeedRequestDto contentRequestDto) {
 
         return contentService.postContent(contentRequestDto);
     }
 
     @GetMapping("/contents")
-    public ResponseEntity<Page<NewsfeedResponseDto>> getAllContents(
+    public ResponseEntity<Page<NewsfeedResponseDto>> getAllNewsfeed(
         @RequestParam("page")int page,
         @RequestParam("size") int size) {
 
@@ -38,13 +38,13 @@ public class NewsfeedController {
     }
 
     @PutMapping("contents/{id}")
-    public ResponseEntity<NewsfeedResponseDto> putContent(@PathVariable Long id,@Valid @RequestBody NewsfeedRequestDto contentRequestDto) {
+    public ResponseEntity<NewsfeedResponseDto> putNewsfeed(@PathVariable Long id,@Valid @RequestBody NewsfeedRequestDto contentRequestDto) {
 
         return contentService.putContent(id,contentRequestDto);
     }
 
     @DeleteMapping("contents/{id}")
-    public ResponseEntity<Long> deleteContent(@PathVariable Long id) {
+    public ResponseEntity<Long> deleteNewsfeed(@PathVariable Long id) {
         return contentService.deleteContent(id);
     }
 }
