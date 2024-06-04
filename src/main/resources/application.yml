@@ -20,5 +20,18 @@ jwt:
     token:
       expiration: 1209600000
 
+cloud:
+  aws:
+    s3:
+      bucket: oneandzerobest
+    credentials:
+      access-key:
+      secret-key:
+    region:
+      static: ap-northeast-2
+      auto: false
+    stack:
+      auto: false
+
 server:
   port: 8080
