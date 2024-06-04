@@ -5,11 +5,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 
 @Entity
 @Getter
@@ -26,52 +24,54 @@ public class User implements UserDetails { // Spring Security의 UserDetails
     @Column(nullable = false)
     private String password;
 
+    @Column(nullable = false)
+    private String name;
+
     @Column(nullable = false, unique = true)
     private String email;
 
-
-    @ElementCollection(fetch = FetchType.EAGER)
-    private Set<String> authorities;
+    @Column
+    private String introduction;
 
     @Column(nullable = false)
-    @Enumerated(value = EnumType.STRING)
-    private UserRoleEnum role;
+    private String statusCode;
 
-    public User(String username, String password, String email, UserRoleEnum role) {
+    @Column
+    private String refreshToken;
+
+    @Column
+    private LocalDateTime statusChangeTime;
+
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @Column
+    private LocalDateTime updatedAt;
+
+    public User(String username, String password, String name, String email, String statusCode) {
         this.username = username;
         this.password = password;
+        this.name = name;
         this.email = email;
-        this.role = role;
-        this.authorities = Collections.singleton(role.name());
+        this.statusCode = statusCode;
+        this.createdAt = LocalDateTime.now();
     }
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
-        for (String authority : this.authorities) {
-            grantedAuthorities.add(() -> authority);
-        }
-        return grantedAuthorities;
+    public void setStatusCode(String statusCode) {
+        this.statusCode = statusCode;
     }
 
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return false;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return false;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return false;
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
     }
 
     @Override
     public boolean isEnabled() {
-        return false;
+        return "정상".equals(this.statusCode); // 계정이 활성화된 상태인지 확인
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return Collections.emptyList(); // 권한 관련 설정
     }
 }
