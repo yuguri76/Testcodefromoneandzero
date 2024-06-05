@@ -1,5 +1,6 @@
 package com.sparta.oneandzerobest.s3.entity;
 
+import com.sparta.oneandzerobest.timestamp.TimeStamp;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -13,7 +14,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class Image {
+public class Image extends TimeStamp {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
