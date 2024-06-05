@@ -1,7 +1,5 @@
 package com.sparta.oneandzerobest.newsfeed.controller;
 
-import com.sparta.oneandzerobest.auth.repository.UserRepository;
-import com.sparta.oneandzerobest.auth.util.JwtUtil;
 import com.sparta.oneandzerobest.newsfeed.dto.NewsfeedRequestDto;
 import com.sparta.oneandzerobest.newsfeed.dto.NewsfeedResponseDto;
 import com.sparta.oneandzerobest.newsfeed.service.NewsfeedService;
@@ -28,8 +26,6 @@ public class NewsfeedController {
 
     private final NewsfeedService contentService;
     private final ImageService s3UploadService;
-    private final JwtUtil jwtUtil;
-    private final UserRepository userRepository;
 
     // 뉴스피드 작성
     @PostMapping("/newsfeed")
