@@ -6,6 +6,7 @@ import com.sparta.oneandzerobest.newsfeed.dto.NewsfeedRequestDto;
 import com.sparta.oneandzerobest.newsfeed.dto.NewsfeedResponseDto;
 import com.sparta.oneandzerobest.newsfeed.service.NewsfeedService;
 import jakarta.validation.Valid;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -41,9 +42,11 @@ public class NewsfeedController {
     @GetMapping("/newsfeed")
     public ResponseEntity<Page<NewsfeedResponseDto>> getAllNewsfeed(
         @RequestParam("page") int page,
-        @RequestParam("size") int size) {
+        @RequestParam("size") int size,
+        @RequestParam(required = false)LocalDateTime startTime,
+        @RequestParam(required = false)LocalDateTime endTime ){
 
-        return contentService.getAllContents(page, size);
+        return contentService.getAllContents(page, size,startTime,endTime);
     }
 
     // 뉴스피드 수정

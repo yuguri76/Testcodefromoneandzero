@@ -8,6 +8,7 @@ import com.sparta.oneandzerobest.newsfeed.dto.NewsfeedResponseDto;
 import com.sparta.oneandzerobest.newsfeed.entity.Newsfeed;
 import com.sparta.oneandzerobest.newsfeed.repository.NewsfeedRepository;
 import jakarta.validation.ConstraintViolationException;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -51,7 +52,8 @@ public class NewsfeedService {
     }
 
     // 게시글 조회
-    public ResponseEntity<Page<NewsfeedResponseDto>> getAllContents(int page, int size) {
+    public ResponseEntity<Page<NewsfeedResponseDto>> getAllContents(int page, int size,
+        LocalDateTime startTime, LocalDateTime endTime) {
 
         try {
 
@@ -59,8 +61,17 @@ public class NewsfeedService {
             Sort.Direction direction = Direction.DESC;
             Sort sort = Sort.by(direction,"createdAt");
             Pageable pageable = PageRequest.of(page, size, sort);
+
             // 모든 게시글 조회
-            Page<Newsfeed> newsfeedList = newsfeedRepository.findAll(pageable);
+            Page<Newsfeed> newsfeedList;
+
+            if(startTime == null){
+                newsfeedList = newsfeedRepository.findAll(pageable);
+            }
+            else{
+                newsfeedList = newsfeedRepository.findAllByCreateAtBetween(startTime,endTime,pageable);
+            }
+
             Page<NewsfeedResponseDto> newsfeedResponseDtoPage = newsfeedList.map(NewsfeedResponseDto::new);
             return  ResponseEntity.ok(newsfeedResponseDtoPage);
         } catch (RuntimeException e) {
