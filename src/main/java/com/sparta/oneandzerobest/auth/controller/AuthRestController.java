@@ -97,4 +97,20 @@ public class AuthRestController {
         TokenResponseDto tokenResponseDto = new TokenResponseDto(newAccessToken, refreshToken);
         return ResponseEntity.ok(tokenResponseDto);
     }
+
+    /**
+     * 이메일 인증
+     * @param username 사용자 이름
+     * @param verificationCode 인증 코드
+     * @return 인증 성공 또는 실패 메시지
+     */
+    @PostMapping("/verify-email")
+    public ResponseEntity<String> verifyEmail(@RequestParam String username, @RequestParam String verificationCode) {
+        boolean isVerified = userService.verifyEmail(username, verificationCode);
+        if (isVerified) {
+            return ResponseEntity.ok("이메일 인증 성공");
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("이메일 인증 실패");
+        }
+    }
 }

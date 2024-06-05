@@ -1,10 +1,12 @@
 package com.sparta.oneandzerobest.auth.entity;
 
+import com.sparta.oneandzerobest.profile.dto.ProfileRequestDto;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
@@ -65,6 +67,10 @@ public class User implements UserDetails { // Spring Security의 UserDetails
         this.refreshToken = refreshToken;
     }
 
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
     @Override
     public boolean isEnabled() {
         return "정상".equals(this.statusCode); // 계정이 활성화된 상태인지 확인
@@ -73,5 +79,15 @@ public class User implements UserDetails { // Spring Security의 UserDetails
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.emptyList(); // 권한 관련 설정
+    }
+
+    public void update(ProfileRequestDto requestDto) {
+        this.name = requestDto.getName();
+        this.email = requestDto.getEmail();
+        this.introduction = requestDto.getIntroduction();
+    }
+
+    public void updatePassword(String password) {
+        this.password = password;
     }
 }
