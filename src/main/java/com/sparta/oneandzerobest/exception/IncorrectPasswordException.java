@@ -1,4 +1,4 @@
-package com.sparta.oneandzerobest.profile.exception;
+package com.sparta.oneandzerobest.exception;
 
 public class IncorrectPasswordException extends RuntimeException {
     public IncorrectPasswordException() {

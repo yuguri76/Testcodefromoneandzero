@@ -1,4 +1,4 @@
-package com.sparta.oneandzerobest.profile.exception;
+package com.sparta.oneandzerobest.exception;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
