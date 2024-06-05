@@ -10,6 +10,13 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface NewsfeedRepository extends JpaRepository<Newsfeed,Long> {
 
+    /**
+     * 특정 날짜 사이에 있는 뉴스피드 검색
+     * @param startDate
+     * @param endDate
+     * @param pageable
+     * @return
+     */
     @Query("select n from Newsfeed n where n.createdAt between :startDate and :endDate")
     Page<Newsfeed> findAllByCreateAtBetween(@Param("startDate") LocalDateTime startDate,
         @Param("endDate") LocalDateTime endDate, Pageable pageable);
