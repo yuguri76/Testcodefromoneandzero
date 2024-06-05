@@ -35,4 +35,8 @@ public class Newsfeed extends TimeStamp {
         this.content = content;
     }
 
+    public void setImage(Image image) {
+        this.imageList.add(image);
+    }
+
 }
