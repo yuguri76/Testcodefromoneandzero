@@ -14,8 +14,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -24,7 +24,7 @@ public class ImageService {
     private final ImageRepository imageRepository;
     private final NewsfeedRepository newsfeedRepository;
     private final UserRepository userRepository;
-    private AmazonS3Client amazonS3Client;
+    private final AmazonS3Client amazonS3Client;
 
     @Value("${cloud.aws.s3.bucketName}")
     private String bucketName;
@@ -48,7 +48,7 @@ public class ImageService {
 
         user.setProfileImage(image);
 
-        return ResponseEntity.badRequest().body("잘못된 응답입니다.");
+        return ResponseEntity.ok().body("성공적으로 업로드되었습니다.");
     }
 
 
@@ -61,7 +61,7 @@ public class ImageService {
 
         String url = uploadImage(file);
         if (url == null) {
-            return ResponseEntity.badRequest().body(("잘못된 응답입니다."));
+            return ResponseEntity.badRequest().body(("성공적으로 업로드되었습니다."));
         }
 
         // Image entity 생성 후 저장
@@ -89,8 +89,9 @@ public class ImageService {
         // s3에 파일 업로드
         try {
             amazonS3Client.putObject(bucketName, uniqueName, file.getInputStream(), metadata);
-        } catch (IOException e) {
+        } catch (Exception e) {
             // 예외처리
+            System.out.println("uploadImage err: " + e.getMessage());
             return null;
         }
 
@@ -99,8 +100,12 @@ public class ImageService {
     }
 
     private String getUniqeFileName(String filename) {
-        long maxId =imageRepository.findMaxid()+1;
-        filename += Long.toString(maxId);
+        Optional<Long> maxId = imageRepository.findMaxid();
+        if (maxId.isPresent()) {
+            filename += Long.toString(maxId.get());
+        } else {
+            filename += Long.toString(1);
+        }
         return filename;
     }
 }

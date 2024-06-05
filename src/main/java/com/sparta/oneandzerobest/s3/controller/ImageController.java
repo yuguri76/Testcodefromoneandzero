@@ -10,13 +10,12 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
-@RequestMapping("/image")
 @RequiredArgsConstructor
 public class ImageController {
 
     private final ImageService s3UploadService;
 
-    @PostMapping("profile/{id}")
+    @PostMapping("/profile/{id}")
     public ResponseEntity<String> saveFile(@RequestParam("file") MultipartFile image,@RequestParam Long id) {
         return s3UploadService.uploadImageToProfile(id,image);
     }

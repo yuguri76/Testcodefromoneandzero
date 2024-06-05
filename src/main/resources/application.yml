@@ -41,10 +41,10 @@ jwt:
 cloud:
   aws:
     s3:
-      bucket: oneandzerobest
+      bucketName:
     credentials:
-      access-key:
-      secret-key:
+      accessKey:
+      secretKey:
     region:
       static: ap-northeast-2
       auto: false
