@@ -5,6 +5,7 @@ import com.sparta.oneandzerobest.auth.util.JwtUtil;
 import com.sparta.oneandzerobest.newsfeed.dto.NewsfeedRequestDto;
 import com.sparta.oneandzerobest.newsfeed.dto.NewsfeedResponseDto;
 import com.sparta.oneandzerobest.newsfeed.service.NewsfeedService;
+import com.sparta.oneandzerobest.s3.service.ImageService;
 import jakarta.validation.Valid;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
@@ -19,12 +20,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
 public class NewsfeedController {
 
     private final NewsfeedService contentService;
+    private final ImageService s3UploadService;
     private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
 
@@ -63,5 +66,13 @@ public class NewsfeedController {
     public ResponseEntity<Long> deleteNewsfeed(@RequestHeader("Authorization") String token,
         @PathVariable Long id) {
         return contentService.deleteContent(token, id);
+    }
+
+    // 뉴스피드 사진 올리기
+    @PostMapping("/newsfeed/{id}")
+    public ResponseEntity<String> uploadImageToNewsfeed(@RequestParam("file") MultipartFile file,
+                                                        @RequestParam Long id) {
+
+        return s3UploadService.uploadImageToNewsfeed(id,file);
     }
 }
