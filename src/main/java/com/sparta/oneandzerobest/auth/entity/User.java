@@ -1,8 +1,7 @@
 package com.sparta.oneandzerobest.auth.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -12,7 +11,10 @@ import java.util.Collections;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Table(name = "users")
 public class User implements UserDetails { // Spring Security의 UserDetails
     @Id
@@ -58,16 +60,15 @@ public class User implements UserDetails { // Spring Security의 UserDetails
         this.createdAt = LocalDateTime.now();
     }
 
-    public void setStatusCode(String statusCode) {
-        this.statusCode = statusCode;
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
 
-    public void setRefreshToken(String refreshToken) {
-        this.refreshToken = refreshToken;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
     }
 
     @Override

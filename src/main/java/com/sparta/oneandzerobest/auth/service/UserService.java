@@ -4,6 +4,7 @@ import com.sparta.oneandzerobest.auth.dto.TokenResponseDto;
 import com.sparta.oneandzerobest.auth.entity.LoginRequest;
 import com.sparta.oneandzerobest.auth.entity.LoginResponse;
 import com.sparta.oneandzerobest.auth.entity.SignupRequest;
+import com.sparta.oneandzerobest.auth.entity.User;
 
 public interface UserService {
     // 회원가입
@@ -22,4 +23,5 @@ public interface UserService {
     // 이메일 업데이트 - 이메일이 잘못된 회원가입
     void updateEmail(SignupRequest signupRequest);
     public LoginResponse loginWithOAuth(String email);
-}
+    public User saveOrUpdateKakaoUser(String userInfoJson);
+    }

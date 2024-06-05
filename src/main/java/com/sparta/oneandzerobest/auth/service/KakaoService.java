@@ -41,7 +41,7 @@ public class KakaoService {
         params.add("client_id", clientId);
         params.add("redirect_uri", redirectUri);
         params.add("code", code);
-        params.add("client_secret", clientSecret);  // client_secret 추가
+        params.add("client_secret", clientSecret);
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
         ResponseEntity<String> response;

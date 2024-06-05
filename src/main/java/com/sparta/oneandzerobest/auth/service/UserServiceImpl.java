@@ -1,5 +1,7 @@
 package com.sparta.oneandzerobest.auth.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.oneandzerobest.auth.dto.TokenResponseDto;
 import com.sparta.oneandzerobest.auth.entity.*;
 import com.sparta.oneandzerobest.auth.repository.UserRepository;
@@ -12,6 +14,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
@@ -27,6 +30,9 @@ public class UserServiceImpl implements UserService {
     private final RedisTemplate<String, String> redisTemplate;
     private final JwtUtil jwtUtil;
     private final Random random = new Random();
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
 
     @Value("${app.email.verification.expiry}")
     private long verificationExpiry;
@@ -241,4 +247,27 @@ public class UserServiceImpl implements UserService {
                 .refreshToken(refreshToken)
                 .build();
     }
-}
+    public User saveOrUpdateKakaoUser(String userInfoJson) {
+        try {
+            JsonNode userInfo = objectMapper.readTree(userInfoJson);
+
+            long kakaoId = userInfo.path("id").asLong();
+            String nickname = userInfo.path("properties").path("nickname").asText();
+            String profileImage = userInfo.path("properties").path("profile_image").asText();
+            String email = kakaoId + "aA@naver.com";
+
+            User user = userRepository.findByEmail(email).orElse(new User());
+            user.setId(kakaoId);
+            user.setUsername(nickname);
+            user.setPassword("kakao");
+            user.setEmail(email);
+            user.setName(nickname);
+            user.setStatusCode("정상");
+
+            return userRepository.save(user);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to parse user info", e);
+        }
+    }
+
+    }
