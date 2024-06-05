@@ -28,12 +28,13 @@ public class NewsfeedService {
     private final UserRepository userRepository;
 
     // 게시글 작성
-    public ResponseEntity<NewsfeedResponseDto> postContent(String token, NewsfeedRequestDto contentRequestDto) {
+    public ResponseEntity<NewsfeedResponseDto> postContent(String token,
+        NewsfeedRequestDto contentRequestDto) {
 
         try {
             // 토큰으로 유저 정보 가져오기
             User user = getUserFormToken(token);
-            if(user == null) {
+            if (user == null) {
                 throw new IllegalArgumentException("Invalid token");
             }
             Long userid = user.getId();
@@ -59,21 +60,22 @@ public class NewsfeedService {
 
             // 생성일 기준으로 최신순 정렬
             Sort.Direction direction = Direction.DESC;
-            Sort sort = Sort.by(direction,"createdAt");
+            Sort sort = Sort.by(direction, "createdAt");
             Pageable pageable = PageRequest.of(page, size, sort);
 
             // 모든 게시글 조회
             Page<Newsfeed> newsfeedList;
 
-            if(startTime == null){
+            if (startTime == null) {
                 newsfeedList = newsfeedRepository.findAll(pageable);
-            }
-            else{
-                newsfeedList = newsfeedRepository.findAllByCreateAtBetween(startTime,endTime,pageable);
+            } else {
+                newsfeedList = newsfeedRepository.findAllByCreateAtBetween(startTime, endTime,
+                    pageable);
             }
 
-            Page<NewsfeedResponseDto> newsfeedResponseDtoPage = newsfeedList.map(NewsfeedResponseDto::new);
-            return  ResponseEntity.ok(newsfeedResponseDtoPage);
+            Page<NewsfeedResponseDto> newsfeedResponseDtoPage = newsfeedList.map(
+                NewsfeedResponseDto::new);
+            return ResponseEntity.ok(newsfeedResponseDtoPage);
         } catch (RuntimeException e) {
 
             return ResponseEntity.badRequest().body(null);
@@ -88,11 +90,12 @@ public class NewsfeedService {
 
         try {
             User user = getUserFormToken(token);
-            if(user == null) {
+            if (user == null) {
                 throw new IllegalArgumentException("Invalid token");
             }
 
-            Newsfeed newsfeed = newsfeedRepository.findById(contentId).orElseThrow(() -> new RuntimeException("Content not found"));
+            Newsfeed newsfeed = newsfeedRepository.findById(contentId)
+                .orElseThrow(() -> new RuntimeException("Content not found"));
             newsfeed.setContent(contentRequestDto.getContent());
 
         } catch (ConstraintViolationException e) {
@@ -106,17 +109,17 @@ public class NewsfeedService {
     // 게시글 삭제
     public ResponseEntity<Long> deleteContent(String token, Long contentId) {
 
-        try{
+        try {
             User user = getUserFormToken(token);
-            if(user == null) {
+            if (user == null) {
                 throw new IllegalArgumentException("Invalid token");
             }
 
-            Newsfeed content = newsfeedRepository.findById(contentId).orElseThrow(() -> new RuntimeException("Content not found"));
+            Newsfeed content = newsfeedRepository.findById(contentId)
+                .orElseThrow(() -> new RuntimeException("Content not found"));
             newsfeedRepository.delete(content);
             return ResponseEntity.ok(content.getId());
-        }
-        catch(RuntimeException e){
+        } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(null);
         }
     }
