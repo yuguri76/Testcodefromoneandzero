@@ -20,7 +20,7 @@ public class ImageController {
         return s3UploadService.uploadImageToProfile(id,image);
     }
 
-    @PostMapping("/newfeed/{id}")
+    @PostMapping("/newsfeed/{id}")
     public ResponseEntity<String> uploadImageToNewsfeed(@RequestParam("file") MultipartFile file,
         @RequestParam Long id) {
 
