@@ -61,14 +61,14 @@ public class ImageService {
 
         String url = uploadImage(file);
         if (url == null) {
-            return ResponseEntity.badRequest().body(("성공적으로 업로드되었습니다."));
+            return ResponseEntity.badRequest().body(("잘못된 응답입니다."));
         }
 
         // Image entity 생성 후 저장
         Image image = new Image(url);
         imageRepository.save(image);
 
-        return ResponseEntity.badRequest().body("잘못된 응답입니다.");
+        return ResponseEntity.ok().body("성공적으로 업로드되었습니다.");
     }
 
     private Boolean validFile(MultipartFile file) {
