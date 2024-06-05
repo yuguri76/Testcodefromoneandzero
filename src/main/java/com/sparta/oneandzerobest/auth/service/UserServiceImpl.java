@@ -226,4 +226,19 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
         sendVerificationEmail(user);
     }
+    @Override
+    public LoginResponse loginWithOAuth(String email) {User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new InfoNotCorrectedException("이메일을 찾을 수 없습니다."));
+
+        String accessToken = jwtUtil.createAccessToken(user.getUsername());
+        String refreshToken = jwtUtil.createRefreshToken(user.getUsername());
+
+        user.setRefreshToken(refreshToken);
+        userRepository.save(user);
+
+        return LoginResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
+    }
 }

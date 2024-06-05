@@ -21,4 +21,5 @@ public interface UserService {
     boolean verifyEmail(String username, String verificationCode);
     // 이메일 업데이트 - 이메일이 잘못된 회원가입
     void updateEmail(SignupRequest signupRequest);
+    public LoginResponse loginWithOAuth(String email);
 }
