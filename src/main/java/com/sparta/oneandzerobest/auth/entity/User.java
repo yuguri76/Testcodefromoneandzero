@@ -1,5 +1,6 @@
 package com.sparta.oneandzerobest.auth.entity;
 
+import com.sparta.oneandzerobest.profile.dto.ProfileRequestDto;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -78,5 +79,15 @@ public class User implements UserDetails { // Spring Security의 UserDetails
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.emptyList(); // 권한 관련 설정
+    }
+
+    public void update(ProfileRequestDto requestDto) {
+        this.name = requestDto.getName();
+        this.email = requestDto.getEmail();
+        this.introduction = requestDto.getIntroduction();
+    }
+
+    public void updatePassword(String password) {
+        this.password = password;
     }
 }
