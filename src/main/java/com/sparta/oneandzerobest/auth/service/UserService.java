@@ -5,6 +5,8 @@ import com.sparta.oneandzerobest.auth.entity.LoginRequest;
 import com.sparta.oneandzerobest.auth.entity.LoginResponse;
 import com.sparta.oneandzerobest.auth.entity.SignupRequest;
 import com.sparta.oneandzerobest.auth.entity.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 public interface UserService {
     // 회원가입
@@ -22,6 +24,7 @@ public interface UserService {
     boolean verifyEmail(String username, String verificationCode);
     // 이메일 업데이트 - 이메일이 잘못된 회원가입
     void updateEmail(SignupRequest signupRequest);
-    public LoginResponse loginWithOAuth(String email);
-    public User saveOrUpdateKakaoUser(String userInfoJson);
+
+     LoginResponse loginWithOAuth(String email);
+     User saveOrUpdateKakaoUser(String userInfoJson);
     }

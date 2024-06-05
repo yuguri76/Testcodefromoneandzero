@@ -22,6 +22,10 @@ public class MailConfig {
     @Value("${spring.mail.password}")
     private String mailPassword;
 
+    /**
+     * smtp로 이메일를 발송하기 위해 JavaMailSender 만들기
+     * @return
+     */
     @Bean
     public JavaMailSender javaMailSender() {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();

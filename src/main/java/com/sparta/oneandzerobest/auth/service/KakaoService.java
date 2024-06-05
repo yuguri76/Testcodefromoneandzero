@@ -28,6 +28,11 @@ public class KakaoService {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
+    /**
+     * getAccessToken: - 엑세스 토큰 받기
+     * @param code: 인증 코드
+     * @return
+     */
     public String getAccessToken(String code) {
         String tokenUrl = "https://kauth.kakao.com/oauth/token";
 
@@ -56,11 +61,16 @@ public class KakaoService {
             JsonNode rootNode = objectMapper.readTree(response.getBody());
             return rootNode.path("access_token").asText();
         } catch (IOException e) {
-            log.error("Failed to parse access token from response", e);
+            log.error("Failedaccess token from response", e);
             throw new RuntimeException("정보 불러오기 실패", e);
         }
     }
 
+    /**
+     * userinfo: - 사용자 정보 가져오기
+     * @param accessToken
+     * @return
+     */
     public String getUserInfo(String accessToken) {
         String userInfoUrl = "https://kapi.kakao.com/v2/user/me";
 

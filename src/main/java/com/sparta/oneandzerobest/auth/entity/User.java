@@ -60,6 +60,9 @@ public class User implements UserDetails { // Spring Security의 UserDetails
         this.createdAt = LocalDateTime.now();
     }
 
+    /**
+     * 생성 일자와 업데이트 됐었을때 현재 시간으로 지정
+     */
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();

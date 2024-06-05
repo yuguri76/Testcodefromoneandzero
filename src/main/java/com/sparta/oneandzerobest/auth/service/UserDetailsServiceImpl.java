@@ -19,13 +19,17 @@ import java.util.Optional;
 public class UserDetailsServiceImpl implements UserDetailsService {
 
     private final UserRepository userRepository;
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
 
     public UserDetailsServiceImpl(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
+    /**
+     * loadUserByUsername: 유저 찾기
+     * @param username
+     * @return
+     * @throws UsernameNotFoundException
+     */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Optional<User> userOptional = userRepository.findByUsername(username);
@@ -40,25 +44,5 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 .authorities(user.getAuthorities())
                 .build();
     }
-    public User saveOrUpdateKakaoUser(String userInfoJson) {
-        try {
-            JsonNode userInfo = objectMapper.readTree(userInfoJson);
 
-            long kakaoId = userInfo.path("id").asLong();
-            String nickname = userInfo.path("properties").path("nickname").asText();
-            String profileImage = userInfo.path("properties").path("profile_image").asText();
-            String email = kakaoId + "aA@naver.com";
-
-            User user = userRepository.findById(kakaoId).orElse(new User());
-            user.setId(kakaoId);
-            user.setUsername(nickname);
-            user.setEmail(email);
-            user.setName(nickname);
-            user.setStatusCode("정상");
-
-            return userRepository.save(user);
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to parse user info", e);
-        }
-    }
 }

@@ -9,11 +9,15 @@ import org.springframework.stereotype.Service;
 public class EmailService {
     private final JavaMailSender javaMailSender;
 
+
     @Value("${spring.mail.username}")
     private String from;
     public EmailService(JavaMailSender javaMailSender) {
         this.javaMailSender = javaMailSender;
     }
+    /**
+     *  email 인증코드 서비스
+     */
     public void sendEmail(String to, String subject, String text) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom(from);

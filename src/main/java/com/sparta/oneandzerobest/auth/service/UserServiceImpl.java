@@ -3,7 +3,10 @@ package com.sparta.oneandzerobest.auth.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.oneandzerobest.auth.dto.TokenResponseDto;
-import com.sparta.oneandzerobest.auth.entity.*;
+import com.sparta.oneandzerobest.auth.entity.LoginRequest;
+import com.sparta.oneandzerobest.auth.entity.LoginResponse;
+import com.sparta.oneandzerobest.auth.entity.SignupRequest;
+import com.sparta.oneandzerobest.auth.entity.User;
 import com.sparta.oneandzerobest.auth.repository.UserRepository;
 import com.sparta.oneandzerobest.auth.util.JwtUtil;
 import com.sparta.oneandzerobest.exception.InfoNotCorrectedException;
@@ -17,7 +20,6 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.Random;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -247,6 +249,13 @@ public class UserServiceImpl implements UserService {
                 .refreshToken(refreshToken)
                 .build();
     }
+
+    /**
+     * 카카오 로그인- 사용자 정보 저장
+     * @param userInfoJson
+     * @return
+     */
+    @Override
     public User saveOrUpdateKakaoUser(String userInfoJson) {
         try {
             JsonNode userInfo = objectMapper.readTree(userInfoJson);
