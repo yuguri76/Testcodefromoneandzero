@@ -41,10 +41,10 @@ jwt:
 cloud:
   aws:
     s3:
-      bucketName:
+      bucketName: ${BUCKET_NAME}
     credentials:
-      accessKey:
-      secretKey:
+      accessKey: ${AWS_ACCESS_KEY}
+      secretKey: ${AWS_SECRET_KEY}
     region:
       static: ap-northeast-2
       auto: false
