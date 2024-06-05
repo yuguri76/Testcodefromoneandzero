@@ -1,5 +1,7 @@
 package com.sparta.oneandzerobest.auth.entity;
 
+import com.sparta.oneandzerobest.profile.dto.ProfileRequestDto;
+import com.sparta.oneandzerobest.s3.entity.Image;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -51,6 +53,10 @@ public class User implements UserDetails { // Spring Security의 UserDetails
     @Column
     private LocalDateTime updatedAt;
 
+    @OneToOne
+    @JoinColumn(referencedColumnName = "id",name ="image_id")
+    private Image image;
+
     public User(String username, String password, String name, String email, String statusCode) {
         this.username = username;
         this.password = password;
@@ -82,5 +88,19 @@ public class User implements UserDetails { // Spring Security의 UserDetails
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.emptyList(); // 권한 관련 설정
+    }
+
+    public void setProfileImage(Image image) {
+        this.image = image;
+    }
+
+    public void update(ProfileRequestDto requestDto) {
+        this.name = requestDto.getName();
+        this.email = requestDto.getEmail();
+        this.introduction = requestDto.getIntroduction();
+    }
+
+    public void updatePassword(String password) {
+        this.password = password;
     }
 }
