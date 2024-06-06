@@ -9,12 +9,14 @@ import org.springframework.stereotype.Component;
 
 import java.util.Base64;
 import java.util.Date;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 // JwtUtil : - JWT 토큰을 생성하고 검증
 @Component
 public class JwtUtil {
     private final String secretKey;
-
+    private final Set<String> blacklistedTokens = ConcurrentHashMap.newKeySet();
     public JwtUtil(@Value("${jwt.secret.key}") String secretKey) {
         this.secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
     }
@@ -77,12 +79,21 @@ public class JwtUtil {
     public boolean validateToken(String token) {
         try {
             extractClaims(token);
-            return true;
+            return !isTokenBlacklisted(token);
         } catch (Exception e) {
             return false;
         }
     }
 
+    // 토큰 블랙리스트 추가
+    public void blacklistToken(String token) {
+        blacklistedTokens.add(token);
+    }
+
+    // 토큰 블랙리스트 확인
+    private boolean isTokenBlacklisted(String token) {
+        return blacklistedTokens.contains(token);
+    }
 
     /**
      * 리프레시 토큰으로 토큰 재발급 - 엑세스 토큰 만료시
