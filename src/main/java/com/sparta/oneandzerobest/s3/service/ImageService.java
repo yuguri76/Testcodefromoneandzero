@@ -5,10 +5,12 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.sparta.oneandzerobest.auth.entity.User;
 import com.sparta.oneandzerobest.auth.repository.UserRepository;
 import com.sparta.oneandzerobest.exception.InvalidFileException;
+import com.sparta.oneandzerobest.exception.NotFoundImageException;
 import com.sparta.oneandzerobest.exception.NotFoundNewsfeedException;
 import com.sparta.oneandzerobest.exception.NotFoundUserException;
 import com.sparta.oneandzerobest.newsfeed.entity.Newsfeed;
 import com.sparta.oneandzerobest.newsfeed.repository.NewsfeedRepository;
+import com.sparta.oneandzerobest.s3.entity.FileContentType;
 import com.sparta.oneandzerobest.s3.entity.Image;
 import com.sparta.oneandzerobest.s3.repository.ImageRepository;
 import java.util.UUID;
@@ -20,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Objects;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +35,10 @@ public class ImageService {
     @Value("${cloud.aws.s3.bucketName}")
     private String bucketName;
 
+    private static final long MAX_IMAGE_SIZE = 10 * 1024 * 1024;
+    private static final long MAX_VIDEO_SIZE = 200 * 1024 * 1024;
+
+
     /**
      * 프로필 이미지 업로드 메서드
      * @param id : user id
@@ -42,6 +47,7 @@ public class ImageService {
      */
     @Transactional
     public ResponseEntity<String> uploadImageToProfile(Long id, MultipartFile file) {
+
         validFile(file); // 파일의 유효성 검사
 
         User user = userRepository.findById(id).orElseThrow(
@@ -57,11 +63,15 @@ public class ImageService {
 
     @Transactional
     public ResponseEntity<String> uploadImageToNewsfeed(Long id, MultipartFile file) {
-        validFile(file); // 파일의 유효성 검사
+
+        validFile(file);
 
         Newsfeed newsfeed = newsfeedRepository.findById(id).orElseThrow(
                 () -> new NotFoundNewsfeedException()
         );
+
+        if(newsfeed.getImageList().size()>=5)
+            throw new InvalidFileException("한 게시글에 올릴 수 있는 미디어는 최대 5개입니다.");
 
         Image image = fileUploadAndSave(file); // file을 AWS S3에 업로드 후 DB에 image 저장
         newsfeed.setImage(image);
@@ -69,10 +79,59 @@ public class ImageService {
         return ResponseEntity.ok().body("성공적으로 업로드되었습니다."); // 성공 메시지 반환
     }
 
+    /**
+     * 게시글 수정 시 파일 수정
+     * @param file
+     * @param id
+     * @param changeFileid
+     * @return
+     */
+    @Transactional
+    public ResponseEntity<String> updateImageToNewsfeed(MultipartFile file, Long id, Long changeFileid) {
+        // 파일 유효성 검사
+        validFile(file);
+
+        Newsfeed newsfeed = newsfeedRepository.findById(id).orElseThrow(
+            () -> new NotFoundNewsfeedException()
+        );
+
+        fileUpdateAndSave(file, changeFileid);
+
+        return ResponseEntity.ok("성공적으로 수정되었습니다.");
+    }
+
+
+    /**
+     * 파일 유효성 검사
+     * @param file
+     */
     private void validFile(MultipartFile file) {
-        if (file.isEmpty() || Objects.isNull(file.getOriginalFilename())) { // 파일의 유효성 검사
-            throw new InvalidFileException();
+        if (file.isEmpty() || Objects.isNull(file.getOriginalFilename())) {
+            throw new InvalidFileException("업로드 하려는 파일이 없습니다.");
         }
+        String fileType = file.getContentType();
+        long fileSize = file.getSize();
+        FileContentType type = FileContentType.getContentType(fileType);
+        if(type == null)
+            throw new InvalidFileException("지원하지 않는 타입의 파일입니다.");
+
+        switch (type){
+            case JPG :
+            case PNG:
+            case JPEG:
+                if(fileSize >MAX_IMAGE_SIZE)
+                    throw new InvalidFileException("image파일은 최대 10MB까지 업로드 가능합니다.");
+                break;
+            case MP4:
+            case AVI:
+            case GIF:
+                if(fileSize > MAX_VIDEO_SIZE)
+                    throw new InvalidFileException("vidoe파일은 최대 200MB까지 업로드 가능합니다.");
+                break;
+            default:
+                throw new InvalidFileException("");
+        }
+
     }
 
     /**
@@ -127,4 +186,28 @@ public class ImageService {
 
         return image;
     }
+
+
+    @Transactional
+    public void fileUpdateAndSave(MultipartFile file, Long changeFileid) {
+
+        // 새로운 이미지 저장
+        String url = uploadImage(file);
+        if(url == null) {
+            throw new RuntimeException("S3 error: AWS S3로부터 url 주소를 받지 못했습니다.");
+        }
+
+        // 저장되어 있는 이미지 가져오기
+        Image image = imageRepository.findById(changeFileid)
+            .orElseThrow(NotFoundImageException::new);
+
+        // s3에서 이전 이미지 삭제
+        amazonS3Client.deleteObject(bucketName, image.getUrl());
+
+        // 새 이미지 정보 수정
+        image.setName(file.getOriginalFilename());
+        image.setUrl(url);
+    }
+
+
 }
