@@ -9,6 +9,7 @@ import com.sparta.oneandzerobest.exception.NotFoundNewsfeedException;
 import com.sparta.oneandzerobest.exception.NotFoundUserException;
 import com.sparta.oneandzerobest.newsfeed.entity.Newsfeed;
 import com.sparta.oneandzerobest.newsfeed.repository.NewsfeedRepository;
+import com.sparta.oneandzerobest.s3.entity.FileContentType;
 import com.sparta.oneandzerobest.s3.entity.Image;
 import com.sparta.oneandzerobest.s3.repository.ImageRepository;
 import java.util.UUID;
@@ -34,6 +35,10 @@ public class ImageService {
     @Value("${cloud.aws.s3.bucketName}")
     private String bucketName;
 
+    private static final long MAX_IMAGE_SIZE = 10 * 1024 * 1024;
+    private static final long MAX_VIDEO_SIZE = 200 * 1024 * 1024;
+
+
     /**
      * 프로필 이미지 업로드 메서드
      * @param id : user id
@@ -42,6 +47,7 @@ public class ImageService {
      */
     @Transactional
     public ResponseEntity<String> uploadImageToProfile(Long id, MultipartFile file) {
+
         validFile(file); // 파일의 유효성 검사
 
         User user = userRepository.findById(id).orElseThrow(
@@ -57,7 +63,8 @@ public class ImageService {
 
     @Transactional
     public ResponseEntity<String> uploadImageToNewsfeed(Long id, MultipartFile file) {
-        validFile(file); // 파일의 유효성 검사
+
+        validFile(file);
 
         Newsfeed newsfeed = newsfeedRepository.findById(id).orElseThrow(
                 () -> new NotFoundNewsfeedException()
@@ -69,10 +76,37 @@ public class ImageService {
         return ResponseEntity.ok().body("성공적으로 업로드되었습니다."); // 성공 메시지 반환
     }
 
+    /**
+     * 파일 유효성 검사
+     * @param file
+     */
     private void validFile(MultipartFile file) {
-        if (file.isEmpty() || Objects.isNull(file.getOriginalFilename())) { // 파일의 유효성 검사
+        if (file.isEmpty() || Objects.isNull(file.getOriginalFilename())) {
             throw new InvalidFileException();
         }
+        String fileType = file.getContentType();
+        long fileSize = file.getSize();
+        FileContentType type = FileContentType.getContentType(fileType);
+        if(type == null)
+            throw new InvalidFileException();
+
+        switch (type){
+            case JPG :
+            case PNG:
+            case JPEG:
+                if(fileSize >MAX_IMAGE_SIZE)
+                    throw new InvalidFileException();
+                break;
+            case MP4:
+            case AVI:
+            case GIF:
+                if(fileSize > MAX_VIDEO_SIZE)
+                    throw new InvalidFileException();
+                break;
+            default:
+                throw new InvalidFileException();
+        }
+
     }
 
     /**
