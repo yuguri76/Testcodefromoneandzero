@@ -83,7 +83,7 @@ public class UserServiceImpl implements UserService {
 
         // 비밀번호 암호화
         String encodedPassword = passwordEncoder.encode(password);
-        User user = new User(authId, encodedPassword, signupRequest.getUsername(), email, "정상");
+        User user = new User(authId, encodedPassword, signupRequest.getUsername(), email, "인증 전");
         userRepository.save(user);
         sendVerificationEmail(user);
     }
@@ -152,11 +152,15 @@ public class UserServiceImpl implements UserService {
      * @param username
      */
     @Override
-    public void logout(String username) {
+    public void logout(String username, String accessToken) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new InfoNotCorrectedException("사용자를 찾을 수 없습니다."));
 
         user.setRefreshToken(null);
+
+        // 액세스 토큰을 블랙리스트에 추가
+        jwtUtil.blacklistToken(accessToken);
+
         userRepository.save(user);
     }
 
@@ -167,7 +171,7 @@ public class UserServiceImpl implements UserService {
      * @param password: 비밀번호
      */
     @Override
-    public void withdraw(String id, String password) {
+    public void withdraw(String id, String password, String accessToken) {
         User user = userRepository.findByUsername(id)
                 .orElseThrow(() -> new InfoNotCorrectedException("사용자를 찾을 수 없습니다."));
 
@@ -181,6 +185,7 @@ public class UserServiceImpl implements UserService {
 
         user.setStatusCode("탈퇴");
         user.setRefreshToken(null);
+        jwtUtil.blacklistToken(accessToken);
         userRepository.save(user);
     }
 
@@ -223,7 +228,7 @@ public class UserServiceImpl implements UserService {
             Optional<User> userOptional = userRepository.findByUsername(username);
             if (userOptional.isPresent()) {
                 User user = userOptional.get();
-                user.setStatusCode("정상");  // 인증이 성공하면 정상
+                user.setStatusCode("이상해");  // 인증이 성공하면 정상
                 userRepository.save(user);
                 return true;
             }
