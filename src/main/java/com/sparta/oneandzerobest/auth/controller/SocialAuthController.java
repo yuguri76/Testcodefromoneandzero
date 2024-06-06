@@ -44,7 +44,7 @@ public class SocialAuthController {
 
         // JWT 토큰 생성
         String jwtAccessToken = jwtUtil.createAccessToken(user.getUsername());
-        String jwtRefreshToken = jwtUtil.createRefreshToken(user.getUsername());
+        String jwtRefreshToken = user.getRefreshToken();
 
         // 각 토큰을 별도의 헤더에 설정
         HttpHeaders headers = new HttpHeaders();
