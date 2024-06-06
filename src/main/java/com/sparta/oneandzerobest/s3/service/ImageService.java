@@ -7,9 +7,11 @@ import com.sparta.oneandzerobest.auth.repository.UserRepository;
 import com.sparta.oneandzerobest.exception.InvalidFileException;
 import com.sparta.oneandzerobest.exception.NotFoundNewsfeedException;
 import com.sparta.oneandzerobest.exception.NotFoundUserException;
+import com.sparta.oneandzerobest.newsfeed.entity.Newsfeed;
 import com.sparta.oneandzerobest.newsfeed.repository.NewsfeedRepository;
 import com.sparta.oneandzerobest.s3.entity.Image;
 import com.sparta.oneandzerobest.s3.repository.ImageRepository;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -53,15 +55,16 @@ public class ImageService {
         return ResponseEntity.ok().body("성공적으로 업로드되었습니다."); // 성공 메시지 반환
     }
 
-
+    @Transactional
     public ResponseEntity<String> uploadImageToNewsfeed(Long id, MultipartFile file) {
         validFile(file); // 파일의 유효성 검사
 
-        newsfeedRepository.findById(id).orElseThrow(
+        Newsfeed newsfeed = newsfeedRepository.findById(id).orElseThrow(
                 () -> new NotFoundNewsfeedException()
         );
 
-        fileUploadAndSave(file); // file을 AWS S3에 업로드 후 DB에 image 저장
+        Image image = fileUploadAndSave(file); // file을 AWS S3에 업로드 후 DB에 image 저장
+        newsfeed.setImage(image);
 
         return ResponseEntity.ok().body("성공적으로 업로드되었습니다."); // 성공 메시지 반환
     }
@@ -81,7 +84,7 @@ public class ImageService {
 
         // 파일의 이름 설정
         String filename= file.getOriginalFilename();
-        String uniqueName = getUniqueFileName(filename);
+        String url = getUUIDFileUrl(filename);
 
         // s3에 업로드할 파일의 메타데이터 생성
         ObjectMetadata metadata = new ObjectMetadata();
@@ -90,13 +93,13 @@ public class ImageService {
 
         // s3에 파일 업로드
         try {
-            amazonS3Client.putObject(bucketName, uniqueName, file.getInputStream(), metadata);
+            amazonS3Client.putObject(bucketName, url, file.getInputStream(), metadata);
         } catch (Exception e) {
             throw new RuntimeException("S3 error: " + e.getMessage());
         }
 
         // s3에 저장된 url 주소 반환
-        return amazonS3Client.getUrl(bucketName,uniqueName).toString();
+        return amazonS3Client.getUrl(bucketName,url).toString();
     }
 
     /**
@@ -104,15 +107,8 @@ public class ImageService {
      * @param filename : 원래 파일의 이름
      * @return : 고유한 파일 이름을 반환
      */
-    private String getUniqueFileName(String filename) {
-        // 자신의 아이디 값을 넣어줌으로써 유니크 이름을 만들어준다.
-        Optional<Long> maxId = imageRepository.findMaxid();
-        if (maxId.isPresent()) {
-            filename += Long.toString(maxId.get() + 1);
-        } else {
-            filename += Long.toString(1);
-        }
-        return filename;
+    private String getUUIDFileUrl(String filename) {
+        return UUID.randomUUID().toString();
     }
 
     /**
@@ -126,7 +122,7 @@ public class ImageService {
             throw new RuntimeException("S3 error: AWS S3로부터 url 주소를 받지 못했습니다.");
         }
 
-        Image image = new Image(url); // AWS S3 url에 따른 Image Entity 생성
+        Image image = new Image(file.getOriginalFilename(), url); // AWS S3 url에 따른 Image Entity 생성
         imageRepository.save(image); // image 객체 DB에 저장
 
         return image;

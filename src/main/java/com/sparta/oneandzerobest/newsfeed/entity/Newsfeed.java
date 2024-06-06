@@ -2,13 +2,13 @@ package com.sparta.oneandzerobest.newsfeed.entity;
 
 import com.sparta.oneandzerobest.s3.entity.Image;
 import com.sparta.oneandzerobest.timestamp.TimeStamp;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -26,9 +26,8 @@ public class Newsfeed extends TimeStamp {
     private Long userid;
     private String content;
 
-    @OneToMany
-    @JoinColumn(name = "imageid",referencedColumnName = "id")
-    private List<Image> imageList;
+    @OneToMany(cascade = CascadeType.ALL , orphanRemoval = true)
+    private List<Image> imageList = new ArrayList<>();
 
     public Newsfeed(Long userid, String content) {
         this.userid = userid;
@@ -38,5 +37,4 @@ public class Newsfeed extends TimeStamp {
     public void setImage(Image image) {
         this.imageList.add(image);
     }
-
 }
