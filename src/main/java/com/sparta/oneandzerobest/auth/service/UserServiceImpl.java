@@ -228,7 +228,7 @@ public class UserServiceImpl implements UserService {
             Optional<User> userOptional = userRepository.findByUsername(username);
             if (userOptional.isPresent()) {
                 User user = userOptional.get();
-                user.setStatusCode("이상해");  // 인증이 성공하면 정상
+                user.setStatusCode("정상");  // 인증이 성공하면 정상
                 userRepository.save(user);
                 return true;
             }
