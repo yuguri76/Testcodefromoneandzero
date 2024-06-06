@@ -73,16 +73,6 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * 비밀번호가 맞지 않을 때
-     *
-     * @return : 클라이언트로 에러 코드와 메시지 반환
-     */
-    @ExceptionHandler(IncorrectPasswordException.class)
-    public ResponseEntity<String> incorrectPasswordHandler() {
-        return ResponseEntity.status(400).body("비밀번호가 맞지 않습니다.");
-    }
-
-    /**
      * 비밀번호가 형식이 맞지 않을 때
      *
      * @return : 클라이언트로 에러 코드와 메시지 반환
