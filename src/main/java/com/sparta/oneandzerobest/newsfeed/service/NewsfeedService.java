@@ -9,6 +9,7 @@ import com.sparta.oneandzerobest.newsfeed.entity.Newsfeed;
 import com.sparta.oneandzerobest.newsfeed.repository.NewsfeedRepository;
 import jakarta.validation.ConstraintViolationException;
 import java.time.LocalDateTime;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -89,6 +90,7 @@ public class NewsfeedService {
             // 모든 게시글 조회
             Page<Newsfeed> newsfeedList;
 
+            // 전체검색 / 기간별 검색
             if (startTime == null) {
                 newsfeedList = newsfeedRepository.findAll(pageable);
             } else {
@@ -119,13 +121,15 @@ public class NewsfeedService {
         NewsfeedRequestDto contentRequestDto) {
 
         try {
-            User user = getUserFormToken(token);
-            if (user == null) {
-                throw new IllegalArgumentException("Invalid token");
-            }
 
             Newsfeed newsfeed = newsfeedRepository.findById(contentId)
                 .orElseThrow(() -> new RuntimeException("Content not found"));
+
+            User user = getUserFormToken(token);
+            // 유저가 없거나, 뉴스피드의 userid와 user의 id가 일치하지 않는다면
+            if (user == null || !Objects.equals(newsfeed.getUserid(), user.getId())) {
+                throw new IllegalArgumentException("Invalid token");
+            }
             newsfeed.setContent(contentRequestDto.getContent());
 
 
@@ -146,15 +150,18 @@ public class NewsfeedService {
     public ResponseEntity<Long> deleteContent(String token, Long contentId) {
 
         try {
+
+            Newsfeed newsfeed = newsfeedRepository.findById(contentId)
+                .orElseThrow(() -> new RuntimeException("Content not found"));
+
             User user = getUserFormToken(token);
-            if (user == null) {
+            // 유저가 없거나, 뉴스피드의 userid와 user의 id가 일치하지 않는다면
+            if (user == null || !Objects.equals(user.getId(), newsfeed.getUserid())) {
                 throw new IllegalArgumentException("Invalid token");
             }
 
-            Newsfeed content = newsfeedRepository.findById(contentId)
-                .orElseThrow(() -> new RuntimeException("Content not found"));
-            newsfeedRepository.delete(content);
-            return ResponseEntity.ok(content.getId());
+            newsfeedRepository.delete(newsfeed);
+            return ResponseEntity.ok(newsfeed.getId());
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(null);
         }
