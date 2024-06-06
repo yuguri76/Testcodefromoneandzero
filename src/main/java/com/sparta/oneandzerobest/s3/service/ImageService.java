@@ -5,6 +5,7 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.sparta.oneandzerobest.auth.entity.User;
 import com.sparta.oneandzerobest.auth.repository.UserRepository;
 import com.sparta.oneandzerobest.exception.InvalidFileException;
+import com.sparta.oneandzerobest.exception.NotFoundImageException;
 import com.sparta.oneandzerobest.exception.NotFoundNewsfeedException;
 import com.sparta.oneandzerobest.exception.NotFoundUserException;
 import com.sparta.oneandzerobest.newsfeed.entity.Newsfeed;
@@ -21,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Objects;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -78,6 +78,28 @@ public class ImageService {
 
         return ResponseEntity.ok().body("성공적으로 업로드되었습니다."); // 성공 메시지 반환
     }
+
+    /**
+     * 게시글 수정 시 파일 수정
+     * @param file
+     * @param id
+     * @param changeFileid
+     * @return
+     */
+    @Transactional
+    public ResponseEntity<String> updateImageToNewsfeed(MultipartFile file, Long id, Long changeFileid) {
+        // 파일 유효성 검사
+        validFile(file);
+
+        Newsfeed newsfeed = newsfeedRepository.findById(id).orElseThrow(
+            () -> new NotFoundNewsfeedException()
+        );
+
+        fileUpdateAndSave(file, changeFileid);
+
+        return ResponseEntity.ok("성공적으로 수정되었습니다.");
+    }
+
 
     /**
      * 파일 유효성 검사
@@ -164,4 +186,28 @@ public class ImageService {
 
         return image;
     }
+
+
+    @Transactional
+    public void fileUpdateAndSave(MultipartFile file, Long changeFileid) {
+
+        // 새로운 이미지 저장
+        String url = uploadImage(file);
+        if(url == null) {
+            throw new RuntimeException("S3 error: AWS S3로부터 url 주소를 받지 못했습니다.");
+        }
+
+        // 저장되어 있는 이미지 가져오기
+        Image image = imageRepository.findById(changeFileid)
+            .orElseThrow(NotFoundImageException::new);
+
+        // s3에서 이전 이미지 삭제
+        amazonS3Client.deleteObject(bucketName, image.getUrl());
+
+        // 새 이미지 정보 수정
+        image.setName(file.getOriginalFilename());
+        image.setUrl(url);
+    }
+
+
 }

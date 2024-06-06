@@ -9,6 +9,7 @@ public class GlobalExceptionHandler {
 
     /**
      * 해당하는 유저를 찾을 수 없을 때
+     *
      * @return : 클라이언트로 에러 코드와 메시지 반환
      */
     @ExceptionHandler(NotFoundUserException.class)
@@ -18,6 +19,7 @@ public class GlobalExceptionHandler {
 
     /**
      * 비밀번호가 맞지 않을 때
+     *
      * @return : 클라이언트로 에러 코드와 메시지 반환
      */
     @ExceptionHandler(IncorrectPasswordException.class)
@@ -27,6 +29,7 @@ public class GlobalExceptionHandler {
 
     /**
      * 비밀번호가 형식이 맞지 않을 때
+     *
      * @return : 클라이언트로 에러 코드와 메시지 반환
      */
     @ExceptionHandler(PasswordPatternException.class)
@@ -36,6 +39,7 @@ public class GlobalExceptionHandler {
 
     /**
      * 비밀번호가 변경이 불가능 할 때
+     *
      * @return : 클라이언트로 에러 코드와 메시지 반환
      */
     @ExceptionHandler(UnacceptablePasswordException.class)
@@ -45,6 +49,7 @@ public class GlobalExceptionHandler {
 
     /**
      * 해당 뉴스피드가 DB에 존재하지 않을 때
+     *
      * @return : 클라이언트로 에러 코드와 메시지 반환
      */
     @ExceptionHandler(NotFoundNewsfeedException.class)
@@ -54,10 +59,16 @@ public class GlobalExceptionHandler {
 
     /**
      * 유효하지 않은 파일일 때
+     *
      * @return : 클라이언트로 에러 코드와 메시지 반환
      */
     @ExceptionHandler(InvalidFileException.class)
     public ResponseEntity<String> invalidFileHandler() {
         return ResponseEntity.status(400).body("유효하지 않은 파일입니다.");
+    }
+
+    @ExceptionHandler(NotFoundImageException.class)
+    public ResponseEntity<String> notFoundImageHandler() {
+        return ResponseEntity.status(400).body("이미지가 존재하지 않습니다.");
     }
 }

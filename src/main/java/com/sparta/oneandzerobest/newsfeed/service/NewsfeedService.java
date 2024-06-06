@@ -18,6 +18,7 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
@@ -99,6 +100,7 @@ public class NewsfeedService {
 
     /**
      * 게시글 수정
+     *
      * @param token
      * @param contentId
      * @param contentRequestDto
@@ -117,6 +119,7 @@ public class NewsfeedService {
             Newsfeed newsfeed = newsfeedRepository.findById(contentId)
                 .orElseThrow(() -> new RuntimeException("Content not found"));
             newsfeed.setContent(contentRequestDto.getContent());
+
 
         } catch (ConstraintViolationException e) {
             return ResponseEntity.badRequest().body(null);

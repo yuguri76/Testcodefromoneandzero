@@ -93,10 +93,17 @@ public class NewsfeedController {
      * @param id
      * @return
      */
-    @PostMapping("/newsfeed/{id}")
+    @PostMapping("/newsfeed/media")
     public ResponseEntity<String> uploadImageToNewsfeed(@RequestParam("file") MultipartFile file,
                                                         @RequestParam Long id) {
 
         return s3UploadService.uploadImageToNewsfeed(id,file);
+    }
+
+    @PutMapping("/newsfeed/media")
+    public ResponseEntity<String> updateImageToNewsfeed(@RequestParam("file") MultipartFile file,
+        @RequestParam Long id, @RequestParam Long fileid) {
+
+        return s3UploadService.updateImageToNewsfeed(file,id,fileid);
     }
 }
