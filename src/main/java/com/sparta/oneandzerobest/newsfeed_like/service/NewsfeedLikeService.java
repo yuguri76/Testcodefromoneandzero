@@ -59,6 +59,9 @@ public class NewsfeedLikeService {
         NewsfeedLike newsfeedLike = new NewsfeedLike(userId, newsfeedId);
         newsfeedLikeRepository.save(newsfeedLike);
 
+        // 뉴스피드 외래 키 설정
+        newsfeed.setNewsfeedLike(newsfeedLike);
+
         // 좋아요 수 조회
         int likesCount = newsfeedLikeRepository.countByNewsfeedId(newsfeedId);
         return new NewsfeedLikeResponseDto("성공적으로 좋아요를 등록했습니다", newsfeedId, userId, likesCount);
@@ -76,8 +79,14 @@ public class NewsfeedLikeService {
         NewsfeedLike newsfeedLike = newsfeedLikeRepository.findByUserIdAndNewsfeedId(userId, newsfeedId)
                 .orElseThrow(() -> new IllegalArgumentException("이 게시글에 좋아요하지 않았습니다."));
 
+        // 뉴스피드 존재 여부 확인
+        Newsfeed newsfeed = newsfeedRepository.findById(newsfeedId)
+            .orElseThrow(() -> new IllegalArgumentException("게시물을 찾을 수 없습니다."));
+
         // 좋아요 정보 삭제
         newsfeedLikeRepository.deleteByUserIdAndNewsfeedId(userId, newsfeedId);
+        // 뉴스피드 엔티티에 있는 좋아요 수 수동으로 제거
+        newsfeed.removeNewsfeedLike();
 
         // 좋아요 수 조회
         int likesCount = newsfeedLikeRepository.countByNewsfeedId(newsfeedId);

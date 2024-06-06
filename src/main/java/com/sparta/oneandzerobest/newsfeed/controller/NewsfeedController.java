@@ -43,21 +43,25 @@ public class NewsfeedController {
     }
 
     /**
-     * 뉴스피드 조회 (페이지)
+     * 뉴스피드 조회
      * @param page
      * @param size
-     * @param startTime
-     * @param endTime
+     * @param isASC  오름차순 , 내림차순
+     * @param like  false면 생성일 기준으로 , true면 좋아요 순
+     * @param startTime 시작날짜 (required = false)
+     * @param endTime 최종 날짜 (required = false)
      * @return
      */
     @GetMapping("/newsfeed")
     public ResponseEntity<Page<NewsfeedResponseDto>> getAllNewsfeed(
         @RequestParam("page") int page,
         @RequestParam("size") int size,
+        @RequestParam("isASC") boolean isASC,
+        @RequestParam("like") boolean like,
         @RequestParam(required = false) LocalDateTime startTime,
         @RequestParam(required = false) LocalDateTime endTime) {
 
-        return newsfeedService.getAllContents(page, size, startTime, endTime);
+        return newsfeedService.getAllContents(page, size,isASC,like, startTime, endTime);
     }
 
     /**
