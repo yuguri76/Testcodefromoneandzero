@@ -1,15 +1,13 @@
 package com.sparta.oneandzerobest.auth.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.oneandzerobest.auth.entity.User;
 import com.sparta.oneandzerobest.auth.repository.UserRepository;
+import com.sparta.oneandzerobest.exception.InfoNotCorrectedException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.Optional;
 
 /**
@@ -26,6 +24,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     /**
      * loadUserByUsername: 유저 찾기
+     *
      * @param username
      * @return
      * @throws UsernameNotFoundException
@@ -35,7 +34,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         Optional<User> userOptional = userRepository.findByUsername(username);
 
         if (userOptional.isEmpty()) {
-            throw new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + username);
+            throw new InfoNotCorrectedException("사용자를 찾을 수 없습니다.");
         }
         User user = userOptional.get();
         return org.springframework.security.core.userdetails.User.builder()
@@ -44,5 +43,4 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 .authorities(user.getAuthorities())
                 .build();
     }
-
 }

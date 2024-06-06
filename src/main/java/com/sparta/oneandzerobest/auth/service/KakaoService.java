@@ -2,13 +2,14 @@ package com.sparta.oneandzerobest.auth.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sparta.oneandzerobest.exception.InvalidkakaoException;
+import com.sparta.oneandzerobest.exception.NotConnectHttpClientErrorException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
@@ -41,6 +42,7 @@ public class KakaoService {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
+        // 보낼 body value
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("grant_type", "authorization_code");
         params.add("client_id", clientId);
@@ -49,20 +51,26 @@ public class KakaoService {
         params.add("client_secret", clientSecret);
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
-        ResponseEntity<String> response;
+        ResponseEntity<String> response = restTemplate.postForEntity(tokenUrl, request, String.class);
 
-        try {
-            response = restTemplate.postForEntity(tokenUrl, request, String.class);
-        } catch (HttpClientErrorException e) {
-            throw new RuntimeException("Failed to get access token: " + e.getResponseBodyAsString(), e);
-        }
-
-        try {
-            JsonNode rootNode = objectMapper.readTree(response.getBody());
+        if (response.getStatusCode() == HttpStatus.OK) {
+            JsonNode rootNode = parseResponse(response.getBody());
             return rootNode.path("access_token").asText();
-        } catch (IOException e) {
-            log.error("Failedaccess token from response", e);
-            throw new RuntimeException("정보 불러오기 실패", e);
+        } else {
+            throw new InvalidkakaoException("엑세스 토큰 받기 실패: " + response.getBody());
+        }
+    }
+
+    /**
+     * Kresponse에서 엑세스 토큰 받기
+     * @param responseBody
+     * @return
+     */
+    private JsonNode parseResponse(String responseBody) {
+        try {
+            return objectMapper.readTree(responseBody);
+        } catch (Exception e) {
+            throw new InvalidkakaoException("엑세스 토큰 받기 실패:");
         }
     }
 
@@ -84,15 +92,15 @@ public class KakaoService {
 
         try {
             response = restTemplate.exchange(userInfoUrl, HttpMethod.GET, request, String.class);
-        } catch (HttpClientErrorException e) {
-            throw new RuntimeException("실패 정보: " + e.getResponseBodyAsString(), e);
+        } catch (NotConnectHttpClientErrorException e) {
+            throw new InvalidkakaoException("엑세스 토큰 받기 실패");
         }
 
         try {
             JsonNode rootNode = objectMapper.readTree(response.getBody());
             return rootNode.toString();
         } catch (IOException e) {
-            throw new RuntimeException("응답받기 실패", e);
+            throw new InvalidkakaoException("응답받기 실패");
         }
     }
 }
