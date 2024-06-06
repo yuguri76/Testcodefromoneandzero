@@ -1,6 +1,7 @@
 package com.sparta.oneandzerobest.auth.config;
 
 import com.sparta.oneandzerobest.auth.filter.JwtAuthenticationFilter;
+import com.sparta.oneandzerobest.auth.service.CustomOAuth2UserService;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,13 +34,13 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         // CSRF 설정
-        http.csrf((csrf) -> csrf.disable());  //csrf 비활성화
+        http.csrf((csrf) -> csrf.disable())  //csrf 비활성화
 
-        http.sessionManagement((sessionManagement) ->
-                sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)); // 세션 관리를 stateless설정
+        .sessionManagement((sessionManagement) ->
+                sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션 관리를 stateless설정
 
         // 요청에 대한 권한 설정
-        http.authorizeHttpRequests(authorizeHttpRequests ->
+                .authorizeHttpRequests(authorizeHttpRequests ->
                 authorizeHttpRequests
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll() // resources 접근 허용 설정
                         .requestMatchers("/", "/index.html", "/login.html", "/signup.html", "/api/auth/**").permitAll() // 특정 경로 접근 허용
@@ -47,10 +48,24 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/schedules/**").permitAll() // 일정 조회는 모두 허용
                         .anyRequest().permitAll() // 그 외 모든 요청 접근 허용
                         //.anyRequest().authenticated() // 그 외 모든 요청 인증처리
-        );
+        )
+                .oauth2Login(oauth2Login ->
+                        oauth2Login
+                                .loginPage("/login")
+                                .defaultSuccessUrl("/loginSuccess")
+                                .failureUrl("/loginFailure")
+                                .userInfoEndpoint(userInfoEndpoint ->
+                                        userInfoEndpoint
+                                                .userService(oAuth2UserService())
+                                )
+                );
 
         // jwtAuthenticationFilter의 순서를 지정해주기위해 UsernamePasswordAuthenticationFilter전으로 위치 지정
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
+    }
+    @Bean
+    public CustomOAuth2UserService oAuth2UserService() {
+        return new CustomOAuth2UserService();
     }
 }

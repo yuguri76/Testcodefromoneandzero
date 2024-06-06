@@ -27,6 +27,24 @@ spring:
       max-file-size: 200MB
       max-request-size: 200MB
 
+  security:
+    oauth2:
+      client:
+        registration:
+          kakao:
+            client-id: ${KAKAO_CLIENT_ID}
+            client-secret: ${KAKAO_CLIENT_SECRET}
+            client-authentication-method: post
+            authorization-grant-type: authorization_code
+            redirect-uri: "http://localhost:8080/api/auth/social/kakao"
+            scope: profile_nickname, profile_image
+        provider:
+          kakao:
+            authorization-uri: https://kauth.kakao.com/oauth/authorize
+            token-uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me
+            user-name-attribute: id
+
 app:
    email:
     verification:
@@ -51,7 +69,7 @@ cloud:
       accessKey: ${AWS_ACCESS_KEY}
       secretKey: ${AWS_SECRET_KEY}
     region:
-      static: ap-southeast-2
+      static: ap-northeast-2
       auto: false
     stack:
       auto: false

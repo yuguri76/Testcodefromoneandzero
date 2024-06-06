@@ -91,7 +91,6 @@ public class AuthRestController {
      */
     @PostMapping("/refresh")
     public ResponseEntity<TokenResponseDto> refresh(@RequestBody RefreshTokenRequestDto refreshTokenRequestDto) {
-
         String refreshToken = refreshTokenRequestDto.getRefreshToken();
         String newAccessToken = jwtUtil.refreshToken(refreshToken);
         TokenResponseDto tokenResponseDto = new TokenResponseDto(newAccessToken, refreshToken);
