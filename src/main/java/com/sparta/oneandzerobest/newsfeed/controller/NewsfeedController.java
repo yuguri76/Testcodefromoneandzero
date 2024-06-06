@@ -6,6 +6,7 @@ import com.sparta.oneandzerobest.newsfeed.service.NewsfeedService;
 import com.sparta.oneandzerobest.s3.service.ImageService;
 import jakarta.validation.Valid;
 import java.time.LocalDateTime;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 public class NewsfeedController {
 
-    private final NewsfeedService contentService;
+    private final NewsfeedService newsfeedService;
     private final ImageService s3UploadService;
 
     /**
@@ -38,7 +39,7 @@ public class NewsfeedController {
         @RequestHeader("Authorization") String token,
         @Valid @RequestBody NewsfeedRequestDto contentRequestDto) {
 
-        return contentService.postContent(token, contentRequestDto);
+        return newsfeedService.postContent(token, contentRequestDto);
     }
 
     /**
@@ -53,10 +54,10 @@ public class NewsfeedController {
     public ResponseEntity<Page<NewsfeedResponseDto>> getAllNewsfeed(
         @RequestParam("page") int page,
         @RequestParam("size") int size,
-        @RequestParam(required = false)LocalDateTime startTime,
-        @RequestParam(required = false)LocalDateTime endTime ){
+        @RequestParam(required = false) LocalDateTime startTime,
+        @RequestParam(required = false) LocalDateTime endTime) {
 
-        return contentService.getAllContents(page, size,startTime,endTime);
+        return newsfeedService.getAllContents(page, size, startTime, endTime);
     }
 
     /**
@@ -71,7 +72,7 @@ public class NewsfeedController {
         @RequestHeader("Authorization") String token, @PathVariable Long id,
         @Valid @RequestBody NewsfeedRequestDto contentRequestDto) {
 
-        return contentService.putContent(token, id, contentRequestDto);
+        return newsfeedService.putContent(token, id, contentRequestDto);
     }
 
     /**
@@ -83,7 +84,7 @@ public class NewsfeedController {
     @DeleteMapping("newsfeed/{id}")
     public ResponseEntity<Long> deleteNewsfeed(@RequestHeader("Authorization") String token,
         @PathVariable Long id) {
-        return contentService.deleteContent(token, id);
+        return newsfeedService.deleteContent(token, id);
     }
 
     /**
@@ -92,10 +93,17 @@ public class NewsfeedController {
      * @param id
      * @return
      */
-    @PostMapping("/newsfeed/{id}")
+    @PostMapping("/newsfeed/media")
     public ResponseEntity<String> uploadImageToNewsfeed(@RequestParam("file") MultipartFile file,
                                                         @RequestParam Long id) {
 
         return s3UploadService.uploadImageToNewsfeed(id,file);
+    }
+
+    @PutMapping("/newsfeed/media")
+    public ResponseEntity<String> updateImageToNewsfeed(@RequestParam("file") MultipartFile file,
+        @RequestParam Long id, @RequestParam Long fileid) {
+
+        return s3UploadService.updateImageToNewsfeed(file,id,fileid);
     }
 }

@@ -18,6 +18,7 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
@@ -27,7 +28,12 @@ public class NewsfeedService {
     private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
 
-    // 게시글 작성
+    /**
+     * 게시글 작성
+     * @param token
+     * @param contentRequestDto
+     * @return
+     */
     public ResponseEntity<NewsfeedResponseDto> postContent(String token,
         NewsfeedRequestDto contentRequestDto) {
 
@@ -52,7 +58,16 @@ public class NewsfeedService {
 
     }
 
-    // 게시글 조회
+    /**
+     * 모든 게시글 조회
+     * 페이지네이션
+     * 기간별 검색
+     * @param page
+     * @param size
+     * @param startTime
+     * @param endTime
+     * @return
+     */
     public ResponseEntity<Page<NewsfeedResponseDto>> getAllContents(int page, int size,
         LocalDateTime startTime, LocalDateTime endTime) {
 
@@ -83,7 +98,14 @@ public class NewsfeedService {
 
     }
 
-    // 게시글 수정
+    /**
+     * 게시글 수정
+     *
+     * @param token
+     * @param contentId
+     * @param contentRequestDto
+     * @return
+     */
     @Transactional
     public ResponseEntity<NewsfeedResponseDto> putContent(String token, Long contentId,
         NewsfeedRequestDto contentRequestDto) {
@@ -98,6 +120,7 @@ public class NewsfeedService {
                 .orElseThrow(() -> new RuntimeException("Content not found"));
             newsfeed.setContent(contentRequestDto.getContent());
 
+
         } catch (ConstraintViolationException e) {
             return ResponseEntity.badRequest().body(null);
         }
@@ -106,7 +129,12 @@ public class NewsfeedService {
     }
 
 
-    // 게시글 삭제
+    /**
+     * 게시글 삭제
+     * @param token
+     * @param contentId
+     * @return
+     */
     public ResponseEntity<Long> deleteContent(String token, Long contentId) {
 
         try {

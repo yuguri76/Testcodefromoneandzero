@@ -53,8 +53,7 @@ public class User implements UserDetails { // Spring Security의 UserDetails
     @Column
     private LocalDateTime updatedAt;
 
-    @OneToOne
-    @JoinColumn(referencedColumnName = "id",name ="image_id")
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     private Image image;
 
     public User(String username, String password, String name, String email, String statusCode) {

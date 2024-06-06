@@ -21,6 +21,12 @@ spring:
           auth: true
           starttls:
             enable: true
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 200MB
+      max-request-size: 200MB
+
   security:
     oauth2:
       client:
@@ -63,7 +69,7 @@ cloud:
       accessKey: ${AWS_ACCESS_KEY}
       secretKey: ${AWS_SECRET_KEY}
     region:
-      static: ap-northeast-2
+      static: ap-southeast-2
       auto: false
     stack:
       auto: false

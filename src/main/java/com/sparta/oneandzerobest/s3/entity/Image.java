@@ -20,10 +20,13 @@ public class Image extends TimeStamp {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
+    private String name;
     @Column(nullable = false, unique = true)
     private  String url;
 
-    public Image(String url){
+    public Image(String name, String url){
+        this.name = name;
         this.url = url;
     }
 }
