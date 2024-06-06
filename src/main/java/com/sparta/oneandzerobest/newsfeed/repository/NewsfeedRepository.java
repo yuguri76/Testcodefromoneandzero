@@ -21,4 +21,8 @@ public interface NewsfeedRepository extends JpaRepository<Newsfeed,Long> {
     Page<Newsfeed> findAllByCreateAtBetween(@Param("startDate") LocalDateTime startDate,
         @Param("endDate") LocalDateTime endDate, Pageable pageable);
 
+
+    @Query("select n from Newsfeed n left join n.newsfeedLikeList group by n.id order by count(1) desc ")
+    Page<Newsfeed> findAllByOrderByLikesCountDesc(Pageable pageable);
+
 }

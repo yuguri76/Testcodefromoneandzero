@@ -18,7 +18,6 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
@@ -59,23 +58,32 @@ public class NewsfeedService {
     }
 
     /**
-     * 모든 게시글 조회
-     * 페이지네이션
-     * 기간별 검색
+     * 모든 게시글 조회 페이지네이션 기간별 검색
+     *
      * @param page
      * @param size
+     * @param isASC
+     * @param like
      * @param startTime
      * @param endTime
      * @return
      */
     public ResponseEntity<Page<NewsfeedResponseDto>> getAllContents(int page, int size,
-        LocalDateTime startTime, LocalDateTime endTime) {
+        boolean isASC, boolean like, LocalDateTime startTime, LocalDateTime endTime) {
 
         try {
+            // 정렬 ( 오름차순 / 내림차순)
+            Sort.Direction direction = isASC ? Direction.ASC : Direction.DESC;
 
-            // 생성일 기준으로 최신순 정렬
-            Sort.Direction direction = Direction.DESC;
-            Sort sort = Sort.by(direction, "createdAt");
+            // 좋아요 / 생성일
+            Sort sort;
+            if(!like){
+                sort = Sort.by(direction, "createdAt");
+            }
+            else{
+                sort = Sort.by(direction,"likeCount");
+            }
+
             Pageable pageable = PageRequest.of(page, size, sort);
 
             // 모든 게시글 조회
