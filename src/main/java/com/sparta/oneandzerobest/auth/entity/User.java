@@ -1,9 +1,9 @@
 package com.sparta.oneandzerobest.auth.entity;
 
 import com.sparta.oneandzerobest.profile.dto.ProfileRequestDto;
+import com.sparta.oneandzerobest.s3.entity.Image;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -13,7 +13,10 @@ import java.util.Collections;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Table(name = "users")
 public class User implements UserDetails { // Spring Security의 UserDetails
     @Id
@@ -50,6 +53,9 @@ public class User implements UserDetails { // Spring Security의 UserDetails
     @Column
     private LocalDateTime updatedAt;
 
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    private Image image;
+
     public User(String username, String password, String name, String email, String statusCode) {
         this.username = username;
         this.password = password;
@@ -59,16 +65,18 @@ public class User implements UserDetails { // Spring Security의 UserDetails
         this.createdAt = LocalDateTime.now();
     }
 
-    public void setStatusCode(String statusCode) {
-        this.statusCode = statusCode;
+    /**
+     * 생성 일자와 업데이트 됐었을때 현재 시간으로 지정
+     */
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
 
-    public void setRefreshToken(String refreshToken) {
-        this.refreshToken = refreshToken;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
     }
 
     @Override
@@ -79,6 +87,10 @@ public class User implements UserDetails { // Spring Security의 UserDetails
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.emptyList(); // 권한 관련 설정
+    }
+
+    public void setProfileImage(Image image) {
+        this.image = image;
     }
 
     public void update(ProfileRequestDto requestDto) {

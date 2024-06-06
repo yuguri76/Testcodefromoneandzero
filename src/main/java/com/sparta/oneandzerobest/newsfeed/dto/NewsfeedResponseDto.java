@@ -8,9 +8,8 @@ public class NewsfeedResponseDto {
     private Long userid;
     private String content;
 
-    public NewsfeedResponseDto(Newsfeed content) {
-        this.userid = content.getUserid();
-        this.content = content.getContent();
+    public NewsfeedResponseDto(Newsfeed newsfeed) {
+        this.userid = newsfeed.getUserid();
+        this.content = newsfeed.getContent();
     }
-
 }
