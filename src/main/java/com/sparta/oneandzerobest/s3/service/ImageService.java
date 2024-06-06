@@ -70,6 +70,9 @@ public class ImageService {
                 () -> new NotFoundNewsfeedException()
         );
 
+        if(newsfeed.getImageList().size()>=5)
+            throw new InvalidFileException("한 게시글에 올릴 수 있는 미디어는 최대 5개입니다.");
+
         Image image = fileUploadAndSave(file); // file을 AWS S3에 업로드 후 DB에 image 저장
         newsfeed.setImage(image);
 
@@ -82,29 +85,29 @@ public class ImageService {
      */
     private void validFile(MultipartFile file) {
         if (file.isEmpty() || Objects.isNull(file.getOriginalFilename())) {
-            throw new InvalidFileException();
+            throw new InvalidFileException("업로드 하려는 파일이 없습니다.");
         }
         String fileType = file.getContentType();
         long fileSize = file.getSize();
         FileContentType type = FileContentType.getContentType(fileType);
         if(type == null)
-            throw new InvalidFileException();
+            throw new InvalidFileException("지원하지 않는 타입의 파일입니다.");
 
         switch (type){
             case JPG :
             case PNG:
             case JPEG:
                 if(fileSize >MAX_IMAGE_SIZE)
-                    throw new InvalidFileException();
+                    throw new InvalidFileException("image파일은 최대 10MB까지 업로드 가능합니다.");
                 break;
             case MP4:
             case AVI:
             case GIF:
                 if(fileSize > MAX_VIDEO_SIZE)
-                    throw new InvalidFileException();
+                    throw new InvalidFileException("vidoe파일은 최대 200MB까지 업로드 가능합니다.");
                 break;
             default:
-                throw new InvalidFileException();
+                throw new InvalidFileException("");
         }
 
     }
