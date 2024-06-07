@@ -39,7 +39,8 @@ public class User implements UserDetails { // Spring Security의 UserDetails
     private String introduction;
 
     @Column(nullable = false)
-    private String statusCode;
+    @Enumerated(EnumType.STRING)
+    private UserStatus statusCode;
 
     @Column
     private String refreshToken;
@@ -56,7 +57,7 @@ public class User implements UserDetails { // Spring Security의 UserDetails
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     private Image image;
 
-    public User(String username, String password, String name, String email, String statusCode) {
+    public User(String username, String password, String name, String email, UserStatus statusCode) {
         this.username = username;
         this.password = password;
         this.name = name;

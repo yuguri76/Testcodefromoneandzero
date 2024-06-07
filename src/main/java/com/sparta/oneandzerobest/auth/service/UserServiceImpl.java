@@ -4,10 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.oneandzerobest.auth.dto.TokenResponseDto;
 import com.sparta.oneandzerobest.auth.email.service.EmailService;
-import com.sparta.oneandzerobest.auth.entity.LoginRequest;
-import com.sparta.oneandzerobest.auth.entity.LoginResponse;
-import com.sparta.oneandzerobest.auth.entity.SignupRequest;
-import com.sparta.oneandzerobest.auth.entity.User;
+import com.sparta.oneandzerobest.auth.entity.*;
 import com.sparta.oneandzerobest.auth.repository.UserRepository;
 import com.sparta.oneandzerobest.auth.util.JwtUtil;
 import com.sparta.oneandzerobest.exception.*;
@@ -70,7 +67,7 @@ public class UserServiceImpl implements UserService {
         Optional<User> existingUser = userRepository.findByUsername(authId);
         if (existingUser.isPresent()) {
             User user = existingUser.get();
-            if ("인증 전".equals(user.getStatusCode())) {
+            if (user.getStatusCode().equals(UserStatus.UNVERIFIED)) {
                 // 인증 전 상태일 때는 이메일을 업데이트하고 새로운 인증 이메일을 보냄
                 updateEmail(signupRequest);
                 return;
@@ -84,7 +81,7 @@ public class UserServiceImpl implements UserService {
 
         // 비밀번호 암호화
         String encodedPassword = passwordEncoder.encode(password);
-        User user = new User(authId, encodedPassword, signupRequest.getUsername(), email, "인증 전");
+        User user = new User(authId, encodedPassword, signupRequest.getUsername(), email, UserStatus.UNVERIFIED);
         userRepository.save(user);
         sendVerificationEmail(user);
     }
@@ -184,7 +181,7 @@ public class UserServiceImpl implements UserService {
             throw new InfoNotCorrectedException("이미 탈퇴한 사용자입니다.");
         }
 
-        user.setStatusCode("탈퇴");
+        user.setStatusCode(UserStatus.WITHDRAWN);
         user.setRefreshToken(null);
         jwtUtil.blacklistToken(accessToken);
         userRepository.save(user);
@@ -229,7 +226,7 @@ public class UserServiceImpl implements UserService {
             Optional<User> userOptional = userRepository.findByUsername(username);
             if (userOptional.isPresent()) {
                 User user = userOptional.get();
-                user.setStatusCode("정상");  // 인증이 성공하면 정상
+                user.setStatusCode(UserStatus.ACTIVE);  // 인증이 성공하면 정상
                 userRepository.save(user);
                 return true;
             }
@@ -295,8 +292,8 @@ public class UserServiceImpl implements UserService {
             user.setPassword("kakao");
             user.setEmail(email);
             user.setName(nickname);
-            user.setStatusCode("정상");
-           // JWT 토큰 생성
+            user.setStatusCode(UserStatus.ACTIVE);
+            // JWT 토큰 생성
             String refreshToken = jwtUtil.createRefreshToken(user.getUsername());
             log.info(refreshToken);
             log.info(user.getRefreshToken());
