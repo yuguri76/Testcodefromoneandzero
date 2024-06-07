@@ -79,8 +79,8 @@ public class AuthRestController {
      * @return
      */
     @PostMapping("/withdraw")
-    public ResponseEntity<String> withdraw(@RequestParam String username, @RequestParam String password,String accessToken) {
-        userService.withdraw(username, password, accessToken);
+    public ResponseEntity<String> withdraw(@RequestParam String username, @RequestParam String password,String accessToken,String refreshToken) {
+        userService.withdraw(username, password, accessToken,refreshToken);
         return ResponseEntity.ok("회원탈퇴 성공");
     }
 

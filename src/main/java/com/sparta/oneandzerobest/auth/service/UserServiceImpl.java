@@ -170,7 +170,7 @@ public class UserServiceImpl implements UserService {
      * @param password: 비밀번호
      */
     @Override
-    public void withdraw(String id, String password, String accessToken,String refreshToken) {
+    public void withdraw(String id, String password, String accessToken, String refreshToken) {
         User user = userRepository.findByUsername(id)
                 .orElseThrow(() -> new InfoNotCorrectedException("사용자를 찾을 수 없습니다."));
 
@@ -186,6 +186,7 @@ public class UserServiceImpl implements UserService {
         user.clearRefreshToken();
         jwtUtil.addblacklistToken(accessToken);
         jwtUtil.addblacklistToken(refreshToken);
+
         userRepository.save(user);
     }
 
