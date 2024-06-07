@@ -3,6 +3,7 @@ package com.sparta.oneandzerobest.auth.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.oneandzerobest.auth.dto.TokenResponseDto;
+import com.sparta.oneandzerobest.auth.email.service.EmailService;
 import com.sparta.oneandzerobest.auth.entity.LoginRequest;
 import com.sparta.oneandzerobest.auth.entity.LoginResponse;
 import com.sparta.oneandzerobest.auth.entity.SignupRequest;
