@@ -32,7 +32,8 @@ public class FollowController {
 
     /**
      * 팔로우 요청을 처리합니다.
-     * @param token JWT 토큰
+     *
+     * @param token  JWT 토큰
      * @param userId 팔로우 당하는 사용자의 ID
      * @return 팔로우 응답 데이터를 담은 DTO
      */
@@ -63,7 +64,8 @@ public class FollowController {
 
     /**
      * 언팔로우 요청을 처리합니다.
-     * @param token JWT 토큰
+     *
+     * @param token  JWT 토큰
      * @param userId 언팔로우 당하는 사용자의 ID
      * @return 언팔로우 응답 데이터를 담은 DTO
      */
@@ -72,7 +74,7 @@ public class FollowController {
                                       @PathVariable("user_id") Long userId) {
         // JWT 토큰에서 사용자 이름 추출
         String username = jwtUtil.getUsernameFromToken(token.replace("Bearer ", ""));
-        
+
         // 사용자 이름으로 사용자 조회
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
@@ -88,11 +90,12 @@ public class FollowController {
 
     /**
      * 팔로우 상태를 조회합니다.
-     * @param token JWT 토큰
+     *
+     * @param token  JWT 토큰
      * @param userId 팔로우 당하는 사용자의 ID
      * @return 팔로우 상태
      */
-    @GetMapping
+    @GetMapping("/{user_id}")
     public ResponseEntity<?> getFollowers(@RequestHeader("Authorization") String token,
                                           @PathVariable("user_id") Long userId) {
         // JWT 토큰에서 사용자 이름 추출
