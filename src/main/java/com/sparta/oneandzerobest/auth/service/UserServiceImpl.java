@@ -3,6 +3,7 @@ package com.sparta.oneandzerobest.auth.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.oneandzerobest.auth.dto.TokenResponseDto;
+import com.sparta.oneandzerobest.auth.email.service.EmailService;
 import com.sparta.oneandzerobest.auth.entity.LoginRequest;
 import com.sparta.oneandzerobest.auth.entity.LoginResponse;
 import com.sparta.oneandzerobest.auth.entity.SignupRequest;
@@ -83,7 +84,7 @@ public class UserServiceImpl implements UserService {
 
         // 비밀번호 암호화
         String encodedPassword = passwordEncoder.encode(password);
-        User user = new User(authId, encodedPassword, signupRequest.getUsername(), email, "정상");
+        User user = new User(authId, encodedPassword, signupRequest.getUsername(), email, "인증 전");
         userRepository.save(user);
         sendVerificationEmail(user);
     }
@@ -152,11 +153,15 @@ public class UserServiceImpl implements UserService {
      * @param username
      */
     @Override
-    public void logout(String username) {
+    public void logout(String username, String accessToken) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new InfoNotCorrectedException("사용자를 찾을 수 없습니다."));
 
         user.setRefreshToken(null);
+
+        // 액세스 토큰을 블랙리스트에 추가
+        jwtUtil.blacklistToken(accessToken);
+
         userRepository.save(user);
     }
 
@@ -167,7 +172,7 @@ public class UserServiceImpl implements UserService {
      * @param password: 비밀번호
      */
     @Override
-    public void withdraw(String id, String password) {
+    public void withdraw(String id, String password, String accessToken) {
         User user = userRepository.findByUsername(id)
                 .orElseThrow(() -> new InfoNotCorrectedException("사용자를 찾을 수 없습니다."));
 
@@ -181,6 +186,7 @@ public class UserServiceImpl implements UserService {
 
         user.setStatusCode("탈퇴");
         user.setRefreshToken(null);
+        jwtUtil.blacklistToken(accessToken);
         userRepository.save(user);
     }
 
@@ -290,7 +296,11 @@ public class UserServiceImpl implements UserService {
             user.setEmail(email);
             user.setName(nickname);
             user.setStatusCode("정상");
-
+           // JWT 토큰 생성
+            String refreshToken = jwtUtil.createRefreshToken(user.getUsername());
+            log.info(refreshToken);
+            log.info(user.getRefreshToken());
+            user.setRefreshToken(refreshToken);
             return userRepository.save(user);
         } catch (IOException e) {
             throw new InfoNotCorrectedException("사용자 정보 불러오기 실패");

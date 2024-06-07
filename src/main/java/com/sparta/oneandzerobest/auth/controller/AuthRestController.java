@@ -67,8 +67,8 @@ public class AuthRestController {
      * @return
      */
     @PostMapping("/logout")
-    public ResponseEntity<String> logout(@RequestParam String username) {
-        userService.logout(username);
+    public ResponseEntity<String> logout(@RequestParam String username,String accessToken) {
+        userService.logout(username, accessToken);
         return ResponseEntity.ok("로그아웃 성공");
     }
 
@@ -79,8 +79,8 @@ public class AuthRestController {
      * @return
      */
     @PostMapping("/withdraw")
-    public ResponseEntity<String> withdraw(@RequestParam String username, @RequestParam String password) {
-        userService.withdraw(username, password);
+    public ResponseEntity<String> withdraw(@RequestParam String username, @RequestParam String password,String accessToken) {
+        userService.withdraw(username, password, accessToken);
         return ResponseEntity.ok("회원탈퇴 성공");
     }
 

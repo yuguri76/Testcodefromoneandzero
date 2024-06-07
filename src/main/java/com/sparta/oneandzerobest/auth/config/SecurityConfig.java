@@ -1,7 +1,7 @@
 package com.sparta.oneandzerobest.auth.config;
 
 import com.sparta.oneandzerobest.auth.filter.JwtAuthenticationFilter;
-import com.sparta.oneandzerobest.auth.service.CustomOAuth2UserService;
+import com.sparta.oneandzerobest.auth.social.service.CustomOAuth2UserService;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -16,10 +16,10 @@ public interface UserService {
     LoginResponse login(LoginRequest loginRequest);
 
     // 로그아웃
-    void logout(String username);
+    void logout(String username,String accessToken);
 
     // 탈퇴
-    void withdraw(String username, String password);
+    void withdraw(String username, String password,String accessToken);
 
     // 리프레시 토큰
     TokenResponseDto refresh(String refreshToken);

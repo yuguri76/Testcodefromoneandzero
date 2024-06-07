@@ -79,10 +79,6 @@ public class User implements UserDetails { // Spring Security의 UserDetails
         this.updatedAt = LocalDateTime.now();
     }
 
-    @Override
-    public boolean isEnabled() {
-        return "정상".equals(this.statusCode); // 계정이 활성화된 상태인지 확인
-    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

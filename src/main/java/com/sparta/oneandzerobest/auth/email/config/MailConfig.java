@@ -1,4 +1,4 @@
-package com.sparta.oneandzerobest.auth.config;
+package com.sparta.oneandzerobest.auth.email.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
