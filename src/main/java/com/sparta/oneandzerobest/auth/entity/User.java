@@ -14,8 +14,6 @@ import java.util.Collections;
 @Entity
 @Getter
 @NoArgsConstructor
-@AllArgsConstructor
-@Builder
 @Table(name = "users")
 public class User implements UserDetails { // Spring Security의 UserDetails
     @Id
@@ -43,9 +41,6 @@ public class User implements UserDetails { // Spring Security의 UserDetails
 
     @Column
     private String refreshToken;
-
-    @Column
-    private LocalDateTime statusChangeTime;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -104,9 +99,6 @@ public class User implements UserDetails { // Spring Security의 UserDetails
         this.refreshToken = null;
     }
 
-    public void verifyEmail() {
-        this.statusCode = UserStatus.ACTIVE;
-    }
     public void updateEmail(String email) {
         this.email = email;
     }

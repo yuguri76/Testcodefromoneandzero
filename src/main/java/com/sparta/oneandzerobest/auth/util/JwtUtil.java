@@ -106,12 +106,12 @@ public class JwtUtil {
     }
 
     // 토큰 블랙리스트 추가
-    public static void blacklistToken(String token) {
+    public static void addblacklistToken(String token) {
         blacklistedTokens.add(token);
     }
 
     // 토큰 블랙리스트 확인
-    private static boolean isTokenBlacklisted(String token) {
+    public static boolean isTokenBlacklisted(String token) {
         return blacklistedTokens.contains(token);
     }
 
@@ -124,7 +124,13 @@ public class JwtUtil {
         // 리프레시 유효
         if (validateRefreshToken(refreshToken)) {
             String username = getUsernameFromToken(refreshToken);
-            return createAccessToken(username);
+            // 리프레시 토큰 블랙리스트 확인
+            if (!isTokenBlacklisted(refreshToken)) {
+                return createAccessToken(username);
+            } else {
+                // 블랙리스트에 있으면 예외 발생
+                throw new IllegalArgumentException("Refresh token is blacklisted.");
+            }
         } else {
             // 이때 프론트가 적절히 로그인으로 유도
             throw new IllegalArgumentException("Refresh token이 만료 또는 유효하지 않음");

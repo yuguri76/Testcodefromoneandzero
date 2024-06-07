@@ -67,8 +67,8 @@ public class AuthRestController {
      * @return
      */
     @PostMapping("/logout")
-    public ResponseEntity<String> logout(@RequestParam String username,String accessToken) {
-        userService.logout(username, accessToken);
+    public ResponseEntity<String> logout(@RequestParam String username,String accessToken,String refreshToken) {
+        userService.logout(username, accessToken, refreshToken);
         return ResponseEntity.ok("로그아웃 성공");
     }
 

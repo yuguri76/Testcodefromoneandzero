@@ -150,14 +150,15 @@ public class UserServiceImpl implements UserService {
      * @param username
      */
     @Override
-    public void logout(String username, String accessToken) {
+    public void logout(String username, String accessToken,String refreshToken) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new InfoNotCorrectedException("사용자를 찾을 수 없습니다."));
 
         user.clearRefreshToken();
 
         // 액세스 토큰을 블랙리스트에 추가
-        jwtUtil.blacklistToken(accessToken);
+        jwtUtil.addblacklistToken(accessToken);
+        jwtUtil.addblacklistToken(refreshToken);
 
         userRepository.save(user);
     }
@@ -169,7 +170,7 @@ public class UserServiceImpl implements UserService {
      * @param password: 비밀번호
      */
     @Override
-    public void withdraw(String id, String password, String accessToken) {
+    public void withdraw(String id, String password, String accessToken,String refreshToken) {
         User user = userRepository.findByUsername(id)
                 .orElseThrow(() -> new InfoNotCorrectedException("사용자를 찾을 수 없습니다."));
 
@@ -183,7 +184,8 @@ public class UserServiceImpl implements UserService {
 
         user.withdraw();
         user.clearRefreshToken();
-        jwtUtil.blacklistToken(accessToken);
+        jwtUtil.addblacklistToken(accessToken);
+        jwtUtil.addblacklistToken(refreshToken);
         userRepository.save(user);
     }
 
@@ -195,6 +197,9 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public TokenResponseDto refresh(String refreshToken) {
+        if (jwtUtil.isTokenBlacklisted(refreshToken)) {
+            throw new IllegalArgumentException("Refresh token is blacklisted.");
+        }
         String username = jwtUtil.getUsernameFromToken(refreshToken);
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new InfoNotCorrectedException("사용자를 찾을 수 없습니다."));
@@ -283,11 +288,14 @@ public class UserServiceImpl implements UserService {
             JsonNode userInfo = objectMapper.readTree(userInfoJson);
 
             long kakaoId = userInfo.path("id").asLong();
+
             String nickname = userInfo.path("properties").path("nickname").asText();
+            String name = nickname + "-kakaoEmail";
+
             String email = kakaoId + "aA@naver.com";
 
             User user = userRepository.findByEmail(email).orElse(new User());
-            user.updateKakaoUser(kakaoId, nickname, nickname, email, UserStatus.ACTIVE);
+            user.updateKakaoUser(kakaoId, name, nickname, email, UserStatus.ACTIVE);
 
             // JWT 토큰 생성
             String refreshToken = jwtUtil.createRefreshToken(user.getUsername());
