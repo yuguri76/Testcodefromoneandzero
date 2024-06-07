@@ -295,7 +295,11 @@ public class UserServiceImpl implements UserService {
             user.setEmail(email);
             user.setName(nickname);
             user.setStatusCode("정상");
-
+           // JWT 토큰 생성
+            String refreshToken = jwtUtil.createRefreshToken(user.getUsername());
+            log.info(refreshToken);
+            log.info(user.getRefreshToken());
+            user.setRefreshToken(refreshToken);
             return userRepository.save(user);
         } catch (IOException e) {
             throw new InfoNotCorrectedException("사용자 정보 불러오기 실패");

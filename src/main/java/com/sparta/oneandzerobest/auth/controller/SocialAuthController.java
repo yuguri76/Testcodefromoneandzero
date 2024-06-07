@@ -1,12 +1,10 @@
 package com.sparta.oneandzerobest.auth.controller;
 
 import com.sparta.oneandzerobest.auth.entity.User;
-import com.sparta.oneandzerobest.auth.service.KakaoService;
+import com.sparta.oneandzerobest.auth.social.service.KakaoService;
 import com.sparta.oneandzerobest.auth.service.UserService;
 import com.sparta.oneandzerobest.auth.util.JwtUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.Response;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,7 +42,7 @@ public class SocialAuthController {
 
         // JWT 토큰 생성
         String jwtAccessToken = jwtUtil.createAccessToken(user.getUsername());
-        String jwtRefreshToken = jwtUtil.createRefreshToken(user.getUsername());
+        String jwtRefreshToken = user.getRefreshToken();
 
         // 각 토큰을 별도의 헤더에 설정
         HttpHeaders headers = new HttpHeaders();
