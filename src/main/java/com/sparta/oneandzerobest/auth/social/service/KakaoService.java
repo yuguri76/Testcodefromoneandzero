@@ -1,4 +1,4 @@
-package com.sparta.oneandzerobest.auth.service;
+package com.sparta.oneandzerobest.auth.social.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
