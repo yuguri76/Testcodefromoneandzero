@@ -27,16 +27,22 @@ public class KakaoService {
     @Value("${spring.security.oauth2.client.registration.kakao.redirect-uri}")
     private String redirectUri;
 
+    @Value("${spring.security.oauth2.client.registration.kakao.token-url}")
+    private String tokenUrl;
+
+    @Value("${spring.security.oauth2.client.registration.kakao.user-info-url}")
+    private String userInfoUrl;
+
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     /**
      * getAccessToken: - 엑세스 토큰 받기
+     *
      * @param code: 인증 코드
      * @return
      */
     public String getAccessToken(String code) {
-        String tokenUrl = "https://kauth.kakao.com/oauth/token";
-
+        
         RestTemplate restTemplate = new RestTemplate();
 
         HttpHeaders headers = new HttpHeaders();
@@ -63,6 +69,7 @@ public class KakaoService {
 
     /**
      * Kresponse에서 엑세스 토큰 받기
+     *
      * @param responseBody
      * @return
      */
@@ -76,11 +83,11 @@ public class KakaoService {
 
     /**
      * userinfo: - 사용자 정보 가져오기
+     *
      * @param accessToken
      * @return
      */
     public String getUserInfo(String accessToken) {
-        String userInfoUrl = "https://kapi.kakao.com/v2/user/me";
 
         RestTemplate restTemplate = new RestTemplate();
 
