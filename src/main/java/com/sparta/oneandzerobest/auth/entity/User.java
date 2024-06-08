@@ -13,10 +13,7 @@ import java.util.Collections;
 
 @Entity
 @Getter
-@Setter
 @NoArgsConstructor
-@AllArgsConstructor
-@Builder
 @Table(name = "users")
 public class User implements UserDetails { // Spring Security의 UserDetails
     @Id
@@ -39,13 +36,11 @@ public class User implements UserDetails { // Spring Security의 UserDetails
     private String introduction;
 
     @Column(nullable = false)
-    private String statusCode;
+    @Enumerated(EnumType.STRING)
+    private UserStatus statusCode;
 
     @Column
     private String refreshToken;
-
-    @Column
-    private LocalDateTime statusChangeTime;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -56,7 +51,7 @@ public class User implements UserDetails { // Spring Security의 UserDetails
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     private Image image;
 
-    public User(String username, String password, String name, String email, String statusCode) {
+    public User(String username, String password, String name, String email, UserStatus statusCode) {
         this.username = username;
         this.password = password;
         this.name = name;
@@ -93,6 +88,42 @@ public class User implements UserDetails { // Spring Security의 UserDetails
         this.name = requestDto.getName();
         this.email = requestDto.getEmail();
         this.introduction = requestDto.getIntroduction();
+    }
+
+    public void updateRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
+    }
+
+    public void withdraw() {
+        this.statusCode = UserStatus.WITHDRAWN;
+        this.refreshToken = null;
+    }
+
+    public void updateEmail(String email) {
+        this.email = email;
+    }
+    public void updateStatus(UserStatus statusCode) {
+        this.statusCode = statusCode;
+    }
+
+    public void updateKakaoUser(long kakaoId, String username, String nickname, String email, UserStatus status) {
+        this.id = kakaoId;
+        this.username = nickname;
+        this.password = "kakao";
+        this.email = email;
+        this.name = nickname;
+        this.statusCode = UserStatus.ACTIVE;
+    }
+    public void clearRefreshToken() {
+        this.refreshToken = null;
+    }
+    public void initUser(String username, String password, String name, String email, UserStatus status) {
+        this.username = username;
+        this.password = password;
+        this.name = name;
+        this.email = email;
+        this.statusCode = status;
+        this.updatedAt = LocalDateTime.now();
     }
 
     public void updatePassword(String password) {
