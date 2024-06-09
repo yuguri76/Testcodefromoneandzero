@@ -106,7 +106,7 @@ public class User implements UserDetails { // Spring Security의 UserDetails
         this.statusCode = statusCode;
     }
 
-    public void updateKakaoUser(long kakaoId, String username, String nickname, String email, UserStatus status) {
+    public void updateKakaoUser(long kakaoId, String username, String nickname, String email, UserStatus statusCode) {
         this.id = kakaoId;
         this.username = nickname;
         this.password = "kakao";
@@ -114,17 +114,18 @@ public class User implements UserDetails { // Spring Security의 UserDetails
         this.name = nickname;
         this.statusCode = UserStatus.ACTIVE;
     }
+    public void updateGoogleUser(String googleId, String name, String email, UserStatus statusCode) {
+        this.username = googleId;
+        this.name = name;
+        this.email = email;
+        this.statusCode = UserStatus.ACTIVE;
+        this.password = "google"; // 구글 사용자의 패스워드는 기본값 설정
+    }
+
     public void clearRefreshToken() {
         this.refreshToken = null;
     }
-    public void initUser(String username, String password, String name, String email, UserStatus status) {
-        this.username = username;
-        this.password = password;
-        this.name = name;
-        this.email = email;
-        this.statusCode = status;
-        this.updatedAt = LocalDateTime.now();
-    }
+
 
     public void updatePassword(String password) {
         this.password = password;
