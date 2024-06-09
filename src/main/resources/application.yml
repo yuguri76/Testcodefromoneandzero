@@ -4,8 +4,8 @@ spring:
   datasource:
     url: jdbc:mysql://localhost:3306/siumechu
     driver-class-name: com.mysql.cj.jdbc.Driver
-    username: ${DATABASE_USERNAME}
-    password: ${DATABASE_PASSWORD}
+    username: root
+    password: Oplk1107950!
   jpa:
     hibernate:
       ddl-auto: create
@@ -94,9 +94,9 @@ cloud:
       secretKey: ${AWS_SECRET_KEY}
     region:
       static: ap-southeast-2
-      auto: false
+      auto: true
     stack:
-      auto: false
+      auto: true
 
 server:
   port: 8080
