@@ -292,7 +292,6 @@ public class UserServiceImpl implements UserService {
 
             String nickname = userInfo.path("properties").path("nickname").asText();
             String name = nickname + "-kakaoEmail";
-
             String email = kakaoId + "aA@naver.com";
 
             User user = userRepository.findByEmail(email).orElse(new User());
@@ -308,4 +307,28 @@ public class UserServiceImpl implements UserService {
             throw new InfoNotCorrectedException("사용자 정보 불러오기 실패");
         }
     }
+
+    @Override
+    public User saveOrUpdateGoogleUser(String userInfoJson) {
+        try {
+            JsonNode userInfo = objectMapper.readTree(userInfoJson);
+
+            String googleId = userInfo.path("id").asText();
+            String email = userInfo.path("email").asText();
+            String nickname = userInfo.path("name").asText();
+
+
+            User user = userRepository.findByEmail(email).orElse(new User());
+            user.updateGoogleUser(googleId, nickname, email, UserStatus.ACTIVE);
+
+            String refreshToken = jwtUtil.createRefreshToken(user.getUsername());
+            user.updateRefreshToken(refreshToken);
+
+            return userRepository.save(user);
+
+        } catch (IOException e) {
+            throw new InfoNotCorrectedException("사용자 정보 불러오기 실패");
+        }
+    }
+
 }
