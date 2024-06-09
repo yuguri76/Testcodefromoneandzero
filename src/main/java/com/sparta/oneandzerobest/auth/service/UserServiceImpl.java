@@ -150,7 +150,7 @@ public class UserServiceImpl implements UserService {
      * @param username
      */
     @Override
-    public void logout(String username, String accessToken,String refreshToken) {
+    public void logout(String username, String accessToken, String refreshToken) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new InfoNotCorrectedException("사용자를 찾을 수 없습니다."));
 
@@ -331,4 +331,23 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    @Override
+    public User saveOrUpdateGithubUser(String userInfoJson) {
+        try {
+            JsonNode userInfo = objectMapper.readTree(userInfoJson);
+            String githubId = userInfo.path("id").asText();
+            String email = userInfo.path("email").asText();
+            String nickname = userInfo.path("name").asText();
+
+            User user = userRepository.findByEmail(email).orElse(new User());
+            user.updateGithubUser(githubId, nickname, email, UserStatus.ACTIVE);
+
+            String refreshToken = jwtUtil.createRefreshToken(user.getUsername());
+            user.updateRefreshToken(refreshToken);
+            return userRepository.save(user);
+
+        } catch (IOException e) {
+            throw new InfoNotCorrectedException("사용자 정보 불러오기 실패");
+        }
+    }
 }

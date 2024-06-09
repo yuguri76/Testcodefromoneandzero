@@ -36,4 +36,5 @@ public interface UserService {
     // 카카오 유저 정보 저장
     User saveOrUpdateKakaoUser(String userInfoJson);
     User saveOrUpdateGoogleUser(String userInfoJson);
+    User saveOrUpdateGithubUser(String userInfoJson);
 }

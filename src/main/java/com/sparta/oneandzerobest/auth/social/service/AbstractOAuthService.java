@@ -93,7 +93,7 @@ public abstract class AbstractOAuthService implements OAuthService {
             throw new InvalidSocialAuthException("사용자 정보 가져오기 실패: " + e.getMessage());
         }
 
-        // JSON 응답 파싱 및 사용자 정보 추출
+        // JSON 응답 파싱 및 사용자 정보 추출 - 카카오 구글
         try {
             JsonNode rootNode = parseResponse(response.getBody());
             return rootNode.toString();
