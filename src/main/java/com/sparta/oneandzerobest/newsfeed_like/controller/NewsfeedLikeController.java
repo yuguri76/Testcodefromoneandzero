@@ -12,6 +12,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
+/**
+ * NewsfeedLikeController는 뉴스피드 좋아요 관련 API 엔드포인트를 제공하는 컨트롤러 클래스입니다.
+ */
 @RestController
 @RequestMapping("/newsfeed")
 public class NewsfeedLikeController {
@@ -25,6 +28,11 @@ public class NewsfeedLikeController {
     @Autowired
     private UserRepository userRepository;
 
+    /**
+     * JWT 토큰을 통해 사용자 정보를 가져오는 메서드
+     * @param token JWT 토큰
+     * @return 사용자 객체
+     */
     private User getUserFromToken(String token) {
         try {
             String username = jwtUtil.getUsernameFromToken(token.replace("Bearer ", ""));
@@ -34,6 +42,14 @@ public class NewsfeedLikeController {
         }
     }
 
+    /**
+     * 뉴스피드 좋아요를 등록하는 메서드
+     * @param newsfeedId 뉴스피드 ID
+     * @param token JWT 토큰
+     * @param contentType 콘텐츠 타입
+     * @param requestDto 요청 DTO (userId를 포함)
+     * @return 좋아요 등록 결과
+     */
     @PostMapping("/{newsfeedId}/like")
     public ResponseEntity<?> addLike(@PathVariable Long newsfeedId,
                                      @RequestHeader("Authorization") String token,
@@ -55,6 +71,14 @@ public class NewsfeedLikeController {
         }
     }
 
+    /**
+     * 뉴스피드 좋아요를 취소하는 메서드
+     * @param newsfeedId 뉴스피드 ID
+     * @param token JWT 토큰
+     * @param contentType 콘텐츠 타입
+     * @param requestDto 요청 DTO (userId를 포함)
+     * @return 좋아요 취소 결과
+     */
     @DeleteMapping("/{newsfeedId}/like")
     public ResponseEntity<?> removeLike(@PathVariable Long newsfeedId,
                                         @RequestHeader("Authorization") String token,

@@ -7,6 +7,9 @@ import lombok.NoArgsConstructor;
 
 import jakarta.persistence.*;
 
+/**
+ * NewsfeedLike 엔티티는 뉴스피드 좋아요 정보를 저장하는 엔티티 클래스입니다.
+ */
 @Entity
 @Table(name = "newsfeed_likes", uniqueConstraints = {@UniqueConstraint(columnNames = {"user_id", "newsfeed_id"})})
 @Getter
@@ -24,11 +27,20 @@ public class NewsfeedLike extends TimeStamp {
     @JoinColumn(name = "newsfeed_id", nullable = false)
     private Newsfeed newsfeed; // 좋아요가 눌린 뉴스피드
 
+    /**
+     * NewsfeedLike 생성자
+     * @param userId 사용자 ID
+     * @param newsfeed 뉴스피드 엔티티
+     */
     public NewsfeedLike(Long userId, Newsfeed newsfeed) {
         this.userId = userId;
         this.newsfeed = newsfeed;
     }
 
+    /**
+     * 뉴스피드를 설정하는 메서드
+     * @param newsfeed 뉴스피드 엔티티
+     */
     public void setNewsfeed(Newsfeed newsfeed) {
         this.newsfeed = newsfeed;
     }
