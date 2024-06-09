@@ -122,6 +122,14 @@ public class User implements UserDetails { // Spring Security의 UserDetails
         this.password = "google"; // 구글 사용자의 패스워드는 기본값 설정
     }
 
+    public void updateGithubUser(String githubId, String name, String email, UserStatus statusCode) {
+        this.username = githubId;
+        this.name = name;
+        this.email = email;
+        this.statusCode = UserStatus.ACTIVE;
+        this.password = "github"; // 구글 사용자의 패스워드는 기본값 설정
+    }
+
     public void clearRefreshToken() {
         this.refreshToken = null;
     }

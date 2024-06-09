@@ -45,6 +45,13 @@ spring:
             authorization-grant-type: authorization_code
             redirect-uri: "http://localhost:8080/api/auth/social/google"
             scope: profile, email
+          github:
+            client-id: ${GITHUB_CLIENT_ID}
+            client-secret: ${GITHUB_CLIENT_SECRET}
+            client-authentication-method: post
+            authorization-grant-type: authorization_code
+            redirect-uri: "http://localhost:8080/api/auth/social/github"
+            scope: user
         provider:
           kakao:
             authorization-uri: https://kauth.kakao.com/oauth/authorize
@@ -55,6 +62,11 @@ spring:
             authorization-uri: https://accounts.google.com/o/oauth2/auth
             token-uri: https://oauth2.googleapis.com/token
             user-info-uri: https://www.googleapis.com/oauth2/v1/userinfo
+            user-name-attribute: id
+          github:
+            authorization-uri: https://github.com/login/oauth/authorize
+            token-uri: https://github.com/login/oauth/access_token
+            user-info-uri: https://api.github.com/user
             user-name-attribute: id
 
 app:
