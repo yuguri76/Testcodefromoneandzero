@@ -45,7 +45,7 @@ public class ProfileService {
                 () -> new NotFoundUserException()
         );
 
-        user.update(requestDto); // 이메일, 이름, 한줄소개 수정
+        user.update(requestDto); // 이름, 한줄소개 수정
 
         if (requestDto.getPassword() != null && !requestDto.getPassword().isEmpty()) { // 비밀번호가 입력되어 있을때만 비밀번호 검사 시작
             if (passwordEncoder.matches(requestDto.getPassword(), user.getPassword())) { // DB에 저장된 비밀번호와 일치하지 않는지 검사
@@ -67,10 +67,11 @@ public class ProfileService {
      */
     private void validationPassword(ProfileRequestDto requestDto, String userPassword) {
         if (!requestDto.getNewPassword().matches("^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[!@#$%^&*])[a-zA-Z\\d!@#$%^&*]{10,}$")) { // 비밀번호를 올바른 형식으로 바꾸려는 검사
-            if (passwordEncoder.matches(requestDto.getNewPassword(), userPassword)) { // 이전과 같은 비밀번호로 수정하는지 검사
-                throw new UnacceptablePasswordException();
-            }
             throw new PasswordPatternException();
+        }
+
+        if (passwordEncoder.matches(requestDto.getNewPassword(), userPassword)) { // 이전과 같은 비밀번호로 수정하는지 검사
+            throw new UnacceptablePasswordException();
         }
     }
 }

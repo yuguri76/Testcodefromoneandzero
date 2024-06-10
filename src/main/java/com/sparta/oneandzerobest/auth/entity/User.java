@@ -86,7 +86,6 @@ public class User implements UserDetails { // Spring Security의 UserDetails
 
     public void update(ProfileRequestDto requestDto) {
         this.name = requestDto.getName();
-        this.email = requestDto.getEmail();
         this.introduction = requestDto.getIntroduction();
     }
 
