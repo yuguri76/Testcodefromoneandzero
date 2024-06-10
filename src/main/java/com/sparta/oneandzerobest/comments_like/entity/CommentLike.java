@@ -2,9 +2,8 @@ package com.sparta.oneandzerobest.comments_like.entity;
 
 import lombok.Getter;
 import lombok.Setter;
-
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
+import com.sparta.oneandzerobest.timestamp.TimeStamp;
 
 /**
  * 엔티티 클래스: CommentLike
@@ -14,7 +13,7 @@ import java.time.LocalDateTime;
 @Table(name = "CommentLikes", uniqueConstraints = {@UniqueConstraint(columnNames = {"user_id", "comment_id"})})
 @Getter
 @Setter
-public class CommentLike {
+public class CommentLike extends TimeStamp {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,16 +25,10 @@ public class CommentLike {
     @Column(name = "comment_id", nullable = false)
     private Long commentId; // 좋아요가 눌린 댓글 ID
 
-    @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt = LocalDateTime.now(); // 생성일자
-
-    @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt = LocalDateTime.now(); // 수정일자
-
-    // No-args constructor
+    // 기본 생성자
     public CommentLike() {}
 
-    // All-args constructor
+    // 필수 필드만 있는 생성자
     public CommentLike(Long userId, Long commentId) {
         this.userId = userId;
         this.commentId = commentId;

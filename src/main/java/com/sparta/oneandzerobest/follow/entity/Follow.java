@@ -15,11 +15,11 @@ public class Follow extends TimeStamp {
 
     @ManyToOne
     @JoinColumn(name = "follower_id", nullable = false)
-    private User follower;
+    private User follower; // 팔로우를 한 사용자
 
     @ManyToOne
     @JoinColumn(name = "followee_id", nullable = false)
-    private User followee;
+    private User followee; // 팔로우를 당한 사용자
 
     // Getter, Setter
     public Long getId() {

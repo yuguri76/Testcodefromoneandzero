@@ -37,7 +37,7 @@ public class FollowController {
      * @param userId 팔로우 당하는 사용자의 ID
      * @return 팔로우 응답 데이터를 담은 DTO
      */
-    @PostMapping
+    @PostMapping("/{user_id}")
     public ResponseEntity<?> follow(@RequestHeader("Authorization") String token,
                                     @PathVariable("user_id") Long userId) {
 
@@ -69,7 +69,7 @@ public class FollowController {
      * @param userId 언팔로우 당하는 사용자의 ID
      * @return 언팔로우 응답 데이터를 담은 DTO
      */
-    @DeleteMapping
+    @DeleteMapping("/{user_id}")
     public ResponseEntity<?> unfollow(@RequestHeader("Authorization") String token,
                                       @PathVariable("user_id") Long userId) {
         // JWT 토큰에서 사용자 이름 추출

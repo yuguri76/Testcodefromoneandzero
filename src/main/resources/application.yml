@@ -94,9 +94,9 @@ cloud:
       secretKey: ${AWS_SECRET_KEY}
     region:
       static: ap-southeast-2
-      auto: false
+      auto: true
     stack:
-      auto: false
+      auto: true
 
 server:
   port: 8080
