@@ -113,16 +113,18 @@ public class User implements UserDetails { // Spring Security의 UserDetails
         this.name = nickname;
         this.statusCode = UserStatus.ACTIVE;
     }
-    public void updateGoogleUser(String googleId, String name, String email, UserStatus statusCode) {
-        this.username = googleId;
+    public void updateGoogleUser(long googleId,String nickname, String name, String email, UserStatus statusCode) {
+        this.id = googleId;
+        this.username = nickname;
         this.name = name;
         this.email = email;
         this.statusCode = UserStatus.ACTIVE;
         this.password = "google"; // 구글 사용자의 패스워드는 기본값 설정
     }
 
-    public void updateGithubUser(String githubId, String name, String email, UserStatus statusCode) {
-        this.username = githubId;
+    public void updateGithubUser(long githubId,String nickname, String name, String email, UserStatus statusCode) {
+        this.id = githubId;
+        this.username = nickname;
         this.name = name;
         this.email = email;
         this.statusCode = UserStatus.ACTIVE;
