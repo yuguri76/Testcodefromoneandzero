@@ -30,6 +30,7 @@ public class NewsfeedController {
 
     /**
      * 뉴스피드 생성
+     *
      * @param token
      * @param contentRequestDto
      * @return
@@ -44,12 +45,13 @@ public class NewsfeedController {
 
     /**
      * 뉴스피드 조회
+     *
      * @param page
      * @param size
-     * @param isASC  오름차순 , 내림차순
-     * @param like  false면 생성일 기준으로 , true면 좋아요 순
+     * @param isASC     오름차순 , 내림차순
+     * @param like      false면 생성일 기준으로 , true면 좋아요 순
      * @param startTime 시작날짜 (required = false)
-     * @param endTime 최종 날짜 (required = false)
+     * @param endTime   최종 날짜 (required = false)
      * @return
      */
     @GetMapping("/newsfeed")
@@ -61,11 +63,12 @@ public class NewsfeedController {
         @RequestParam(required = false) LocalDateTime startTime,
         @RequestParam(required = false) LocalDateTime endTime) {
 
-        return newsfeedService.getAllContents(page, size,isASC,like, startTime, endTime);
+        return newsfeedService.getAllContents(page, size, isASC, like, startTime, endTime);
     }
 
     /**
      * 뉴스피드 수정
+     *
      * @param token
      * @param id
      * @param contentRequestDto
@@ -81,6 +84,7 @@ public class NewsfeedController {
 
     /**
      * 뉴스피드 삭제
+     *
      * @param token
      * @param id
      * @return
@@ -93,21 +97,24 @@ public class NewsfeedController {
 
     /**
      * 뉴스피드에 사진 업로드
+     *
      * @param file
      * @param id
      * @return
      */
     @PostMapping("/newsfeed/media")
-    public ResponseEntity<String> uploadImageToNewsfeed(@RequestParam("file") MultipartFile file,
-                                                        @RequestParam Long id) {
+    public ResponseEntity<String> uploadImageToNewsfeed(
+        @RequestHeader("Authorization") String token, @RequestParam("file") MultipartFile file,
+        @RequestParam Long id) {
 
-        return s3UploadService.uploadImageToNewsfeed(id,file);
+        return s3UploadService.uploadImageToNewsfeed(token,id, file);
     }
 
     @PutMapping("/newsfeed/media")
-    public ResponseEntity<String> updateImageToNewsfeed(@RequestParam("file") MultipartFile file,
+    public ResponseEntity<String> updateImageToNewsfeed(
+        @RequestHeader("Authorization") String token, @RequestParam("file") MultipartFile file,
         @RequestParam Long id, @RequestParam Long fileid) {
 
-        return s3UploadService.updateImageToNewsfeed(file,id,fileid);
+        return s3UploadService.updateImageToNewsfeed(token,file, id, fileid);
     }
 }
