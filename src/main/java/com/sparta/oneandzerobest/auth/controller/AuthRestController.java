@@ -67,8 +67,8 @@ public class AuthRestController {
      * @return
      */
     @PostMapping("/logout")
-    public ResponseEntity<String> logout(@RequestParam String username) {
-        userService.logout(username);
+    public ResponseEntity<String> logout(@RequestParam String username,String accessToken,String refreshToken) {
+        userService.logout(username, accessToken, refreshToken);
         return ResponseEntity.ok("로그아웃 성공");
     }
 
@@ -79,8 +79,8 @@ public class AuthRestController {
      * @return
      */
     @PostMapping("/withdraw")
-    public ResponseEntity<String> withdraw(@RequestParam String username, @RequestParam String password) {
-        userService.withdraw(username, password);
+    public ResponseEntity<String> withdraw(@RequestParam String username, @RequestParam String password,String accessToken,String refreshToken) {
+        userService.withdraw(username, password, accessToken,refreshToken);
         return ResponseEntity.ok("회원탈퇴 성공");
     }
 
@@ -91,10 +91,25 @@ public class AuthRestController {
      */
     @PostMapping("/refresh")
     public ResponseEntity<TokenResponseDto> refresh(@RequestBody RefreshTokenRequestDto refreshTokenRequestDto) {
-
         String refreshToken = refreshTokenRequestDto.getRefreshToken();
         String newAccessToken = jwtUtil.refreshToken(refreshToken);
         TokenResponseDto tokenResponseDto = new TokenResponseDto(newAccessToken, refreshToken);
         return ResponseEntity.ok(tokenResponseDto);
+    }
+
+    /**
+     * 이메일 인증
+     * @param username 사용자 이름
+     * @param verificationCode 인증 코드
+     * @return 인증 성공 또는 실패 메시지
+     */
+    @PostMapping("/verify-email")
+    public ResponseEntity<String> verifyEmail(@RequestParam String username, @RequestParam String verificationCode) {
+        boolean isVerified = userService.verifyEmail(username, verificationCode);
+        if (isVerified) {
+            return ResponseEntity.ok("이메일 인증 성공");
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("이메일 인증 실패");
+        }
     }
 }
