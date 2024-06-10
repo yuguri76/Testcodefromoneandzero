@@ -343,12 +343,7 @@ public class UserServiceImpl implements UserService {
             JsonNode userInfo = objectMapper.readTree(userInfoJson);
             long githubId = userInfo.path("id").asLong();
             String nickname = userInfo.path("name").asText();
-            String email = userInfo.path("email").asText();
-
-            // email이 없으면 nickname으로 email 생성
-            if (email == null || email.isEmpty()) {
-                email = nickname + "@github.com";
-            }
+            String email = nickname + "@github.com";
 
             String name = nickname + "-githubUser";
 
