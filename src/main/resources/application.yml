@@ -4,8 +4,8 @@ spring:
   datasource:
     url: jdbc:mysql://localhost:3306/siumechu
     driver-class-name: com.mysql.cj.jdbc.Driver
-    username: root
-    password: Oplk1107950!
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
   jpa:
     hibernate:
       ddl-auto: create
