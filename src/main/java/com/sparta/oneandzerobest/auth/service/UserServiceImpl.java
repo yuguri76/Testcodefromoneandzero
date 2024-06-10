@@ -313,13 +313,19 @@ public class UserServiceImpl implements UserService {
         try {
             JsonNode userInfo = objectMapper.readTree(userInfoJson);
 
-            String googleId = userInfo.path("id").asText();
+            long googleId = userInfo.path("id").asLong();
             String email = userInfo.path("email").asText();
             String nickname = userInfo.path("name").asText();
 
+            // email이 없으면 nickname으로 email 생성
+            if (email == null || email.isEmpty()) {
+                email = nickname + "@google.com";
+            }
+
+            String name = email + "-name";
 
             User user = userRepository.findByEmail(email).orElse(new User());
-            user.updateGoogleUser(googleId, nickname, email, UserStatus.ACTIVE);
+            user.updateGoogleUser(googleId, nickname, name, email, UserStatus.ACTIVE);
 
             String refreshToken = jwtUtil.createRefreshToken(user.getUsername());
             user.updateRefreshToken(refreshToken);
@@ -335,12 +341,19 @@ public class UserServiceImpl implements UserService {
     public User saveOrUpdateGithubUser(String userInfoJson) {
         try {
             JsonNode userInfo = objectMapper.readTree(userInfoJson);
-            String githubId = userInfo.path("id").asText();
-            String email = userInfo.path("email").asText();
+            long githubId = userInfo.path("id").asLong();
             String nickname = userInfo.path("name").asText();
+            String email = userInfo.path("email").asText();
+
+            // email이 없으면 nickname으로 email 생성
+            if (email == null || email.isEmpty()) {
+                email = nickname + "@github.com";
+            }
+
+            String name = nickname + "-githubUser";
 
             User user = userRepository.findByEmail(email).orElse(new User());
-            user.updateGithubUser(githubId, nickname, email, UserStatus.ACTIVE);
+            user.updateGithubUser(githubId, nickname, name, email, UserStatus.ACTIVE);
 
             String refreshToken = jwtUtil.createRefreshToken(user.getUsername());
             user.updateRefreshToken(refreshToken);
