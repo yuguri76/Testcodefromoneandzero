@@ -33,10 +33,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     /**
-     *요청 필터링: JWT 토큰을 검증해서 유효하면 사용자 정보 설정
-     * @param request HTTP 요청
+     * 요청 필터링: JWT 토큰을 검증해서 유효하면 사용자 정보 설정
+     *
+     * @param request  HTTP 요청
      * @param response HTTP 응답
-     * @param chain  필터 체인
+     * @param chain    필터 체인
      * @throws ServletException
      * @throws IOException
      */

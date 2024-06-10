@@ -4,10 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.oneandzerobest.auth.dto.TokenResponseDto;
 import com.sparta.oneandzerobest.auth.email.service.EmailService;
-import com.sparta.oneandzerobest.auth.entity.LoginRequest;
-import com.sparta.oneandzerobest.auth.entity.LoginResponse;
-import com.sparta.oneandzerobest.auth.entity.SignupRequest;
-import com.sparta.oneandzerobest.auth.entity.User;
+import com.sparta.oneandzerobest.auth.entity.*;
 import com.sparta.oneandzerobest.auth.repository.UserRepository;
 import com.sparta.oneandzerobest.auth.util.JwtUtil;
 import com.sparta.oneandzerobest.exception.*;
@@ -70,7 +67,7 @@ public class UserServiceImpl implements UserService {
         Optional<User> existingUser = userRepository.findByUsername(authId);
         if (existingUser.isPresent()) {
             User user = existingUser.get();
-            if ("인증 전".equals(user.getStatusCode())) {
+            if (user.getStatusCode().equals(UserStatus.UNVERIFIED)) {
                 // 인증 전 상태일 때는 이메일을 업데이트하고 새로운 인증 이메일을 보냄
                 updateEmail(signupRequest);
                 return;
@@ -84,7 +81,7 @@ public class UserServiceImpl implements UserService {
 
         // 비밀번호 암호화
         String encodedPassword = passwordEncoder.encode(password);
-        User user = new User(authId, encodedPassword, signupRequest.getUsername(), email, "인증 전");
+        User user = new User(authId, encodedPassword, signupRequest.getUsername(), email, UserStatus.UNVERIFIED);
         userRepository.save(user);
         sendVerificationEmail(user);
     }
@@ -128,17 +125,17 @@ public class UserServiceImpl implements UserService {
             throw new InvalidPasswordException("사용자 ID와 비밀번호가 일치하지 않습니다.");
         }
 
-        if ("탈퇴".equals(user.getStatusCode())) {
+        if (UserStatus.WITHDRAWN.equals(user.getStatusCode())) {
             throw new InfoNotCorrectedException("탈퇴한 사용자입니다.");
         }
 
-        if ("인증 전".equals(user.getStatusCode())) {
+        if (UserStatus.UNVERIFIED.equals(user.getStatusCode())) {
             throw new InfoNotCorrectedException("이메일 인증이 필요합니다.");
         }
         String accessToken = jwtUtil.createAccessToken(user.getUsername());
         String refreshToken = jwtUtil.createRefreshToken(user.getUsername());
 
-        user.setRefreshToken(refreshToken);
+        user.updateRefreshToken(refreshToken);
         userRepository.save(user);
 
         return LoginResponse.builder()
@@ -153,14 +150,15 @@ public class UserServiceImpl implements UserService {
      * @param username
      */
     @Override
-    public void logout(String username, String accessToken) {
+    public void logout(String username, String accessToken, String refreshToken) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new InfoNotCorrectedException("사용자를 찾을 수 없습니다."));
 
-        user.setRefreshToken(null);
+        user.clearRefreshToken();
 
         // 액세스 토큰을 블랙리스트에 추가
-        jwtUtil.blacklistToken(accessToken);
+        jwtUtil.addblacklistToken(accessToken);
+        jwtUtil.addblacklistToken(refreshToken);
 
         userRepository.save(user);
     }
@@ -172,7 +170,7 @@ public class UserServiceImpl implements UserService {
      * @param password: 비밀번호
      */
     @Override
-    public void withdraw(String id, String password, String accessToken) {
+    public void withdraw(String id, String password, String accessToken, String refreshToken) {
         User user = userRepository.findByUsername(id)
                 .orElseThrow(() -> new InfoNotCorrectedException("사용자를 찾을 수 없습니다."));
 
@@ -184,9 +182,11 @@ public class UserServiceImpl implements UserService {
             throw new InfoNotCorrectedException("이미 탈퇴한 사용자입니다.");
         }
 
-        user.setStatusCode("탈퇴");
-        user.setRefreshToken(null);
-        jwtUtil.blacklistToken(accessToken);
+        user.withdraw();
+        user.clearRefreshToken();
+        jwtUtil.addblacklistToken(accessToken);
+        jwtUtil.addblacklistToken(refreshToken);
+
         userRepository.save(user);
     }
 
@@ -198,6 +198,9 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public TokenResponseDto refresh(String refreshToken) {
+        if (jwtUtil.isTokenBlacklisted(refreshToken)) {
+            throw new IllegalArgumentException("Refresh token is blacklisted.");
+        }
         String username = jwtUtil.getUsernameFromToken(refreshToken);
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new InfoNotCorrectedException("사용자를 찾을 수 없습니다."));
@@ -209,7 +212,7 @@ public class UserServiceImpl implements UserService {
         String newAccessToken = jwtUtil.createAccessToken(username);
         String newRefreshToken = jwtUtil.createRefreshToken(username);
 
-        user.setRefreshToken(newRefreshToken);
+        user.clearRefreshToken();
         userRepository.save(user);
 
         return new TokenResponseDto(newAccessToken, newRefreshToken);
@@ -229,7 +232,7 @@ public class UserServiceImpl implements UserService {
             Optional<User> userOptional = userRepository.findByUsername(username);
             if (userOptional.isPresent()) {
                 User user = userOptional.get();
-                user.setStatusCode("정상");  // 인증이 성공하면 정상
+                user.updateStatus(UserStatus.ACTIVE);  // 인증이 성공하면 정상
                 userRepository.save(user);
                 return true;
             }
@@ -246,7 +249,7 @@ public class UserServiceImpl implements UserService {
     public void updateEmail(SignupRequest signupRequest) {
         User user = userRepository.findByUsername(signupRequest.getUsername())
                 .orElseThrow(() -> new InfoNotCorrectedException("사용자를 찾을 수 없습니다."));
-        user.setEmail(signupRequest.getEmail());
+        user.updateEmail(signupRequest.getEmail());
         userRepository.save(user);
         sendVerificationEmail(user);
     }
@@ -265,7 +268,7 @@ public class UserServiceImpl implements UserService {
         String accessToken = jwtUtil.createAccessToken(user.getUsername());
         String refreshToken = jwtUtil.createRefreshToken(user.getUsername());
 
-        user.setRefreshToken(refreshToken);
+        user.updateRefreshToken(refreshToken);
         userRepository.save(user);
 
         return LoginResponse.builder()
@@ -286,22 +289,63 @@ public class UserServiceImpl implements UserService {
             JsonNode userInfo = objectMapper.readTree(userInfoJson);
 
             long kakaoId = userInfo.path("id").asLong();
+
             String nickname = userInfo.path("properties").path("nickname").asText();
+            String name = nickname + "-kakaoEmail";
             String email = kakaoId + "aA@naver.com";
 
             User user = userRepository.findByEmail(email).orElse(new User());
-            user.setId(kakaoId);
-            user.setUsername(nickname);
-            user.setPassword("kakao");
-            user.setEmail(email);
-            user.setName(nickname);
-            user.setStatusCode("정상");
-           // JWT 토큰 생성
+            user.updateKakaoUser(kakaoId, name, nickname, email, UserStatus.ACTIVE);
+
+            // JWT 토큰 생성
             String refreshToken = jwtUtil.createRefreshToken(user.getUsername());
-            log.info(refreshToken);
-            log.info(user.getRefreshToken());
-            user.setRefreshToken(refreshToken);
+
+            user.updateRefreshToken(refreshToken);
             return userRepository.save(user);
+
+        } catch (IOException e) {
+            throw new InfoNotCorrectedException("사용자 정보 불러오기 실패");
+        }
+    }
+
+    @Override
+    public User saveOrUpdateGoogleUser(String userInfoJson) {
+        try {
+            JsonNode userInfo = objectMapper.readTree(userInfoJson);
+
+            String googleId = userInfo.path("id").asText();
+            String email = userInfo.path("email").asText();
+            String nickname = userInfo.path("name").asText();
+
+
+            User user = userRepository.findByEmail(email).orElse(new User());
+            user.updateGoogleUser(googleId, nickname, email, UserStatus.ACTIVE);
+
+            String refreshToken = jwtUtil.createRefreshToken(user.getUsername());
+            user.updateRefreshToken(refreshToken);
+
+            return userRepository.save(user);
+
+        } catch (IOException e) {
+            throw new InfoNotCorrectedException("사용자 정보 불러오기 실패");
+        }
+    }
+
+    @Override
+    public User saveOrUpdateGithubUser(String userInfoJson) {
+        try {
+            JsonNode userInfo = objectMapper.readTree(userInfoJson);
+            String githubId = userInfo.path("id").asText();
+            String email = userInfo.path("email").asText();
+            String nickname = userInfo.path("name").asText();
+
+            User user = userRepository.findByEmail(email).orElse(new User());
+            user.updateGithubUser(githubId, nickname, email, UserStatus.ACTIVE);
+
+            String refreshToken = jwtUtil.createRefreshToken(user.getUsername());
+            user.updateRefreshToken(refreshToken);
+            return userRepository.save(user);
+
         } catch (IOException e) {
             throw new InfoNotCorrectedException("사용자 정보 불러오기 실패");
         }

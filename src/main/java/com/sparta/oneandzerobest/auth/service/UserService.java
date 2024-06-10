@@ -16,10 +16,10 @@ public interface UserService {
     LoginResponse login(LoginRequest loginRequest);
 
     // 로그아웃
-    void logout(String username,String accessToken);
+    void logout(String username, String accessToken, String refreshToken);
 
     // 탈퇴
-    void withdraw(String username, String password,String accessToken);
+    void withdraw(String username, String password, String accessToken, String refreshToken);
 
     // 리프레시 토큰
     TokenResponseDto refresh(String refreshToken);
@@ -31,8 +31,10 @@ public interface UserService {
     void updateEmail(SignupRequest signupRequest);
 
     // OAuth으로 로그인
-     LoginResponse loginWithOAuth(String email);
+    LoginResponse loginWithOAuth(String email);
 
-     // 카카오 유저 정보 저장
-     User saveOrUpdateKakaoUser(String userInfoJson);
-    }
+    // 카카오 유저 정보 저장
+    User saveOrUpdateKakaoUser(String userInfoJson);
+    User saveOrUpdateGoogleUser(String userInfoJson);
+    User saveOrUpdateGithubUser(String userInfoJson);
+}

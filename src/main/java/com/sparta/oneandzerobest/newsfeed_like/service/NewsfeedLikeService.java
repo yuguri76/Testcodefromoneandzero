@@ -24,16 +24,6 @@ public class NewsfeedLikeService {
     private NewsfeedRepository newsfeedRepository;
 
     /**
-     * 좋아요 수 조회
-     * @param newsfeedId 뉴스피드 ID
-     * @return 좋아요 수
-     */
-    public int getLikesCount(Long newsfeedId) {
-        // 특정 뉴스피드에 대한 좋아요 수를 리포지토리에서 조회하여 반환
-        return newsfeedLikeRepository.countByNewsfeedId(newsfeedId);
-    }
-
-    /**
      * 좋아요 추가
      * @param userId 사용자 ID
      * @param newsfeedId 뉴스피드 ID
@@ -56,11 +46,12 @@ public class NewsfeedLikeService {
         }
 
         // 좋아요 정보를 저장
-        NewsfeedLike newsfeedLike = new NewsfeedLike(userId, newsfeedId);
+        NewsfeedLike newsfeedLike = new NewsfeedLike(userId, newsfeed);
         newsfeedLikeRepository.save(newsfeedLike);
 
-        // 뉴스피드 외래 키 설정
+        // 뉴스피드에 좋아요 추가
         newsfeed.setNewsfeedLike(newsfeedLike);
+        newsfeedRepository.save(newsfeed);
 
         // 좋아요 수 조회
         int likesCount = newsfeedLikeRepository.countByNewsfeedId(newsfeedId);
@@ -81,15 +72,25 @@ public class NewsfeedLikeService {
 
         // 뉴스피드 존재 여부 확인
         Newsfeed newsfeed = newsfeedRepository.findById(newsfeedId)
-            .orElseThrow(() -> new IllegalArgumentException("게시물을 찾을 수 없습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("게시물을 찾을 수 없습니다."));
 
-        // 좋아요 정보 삭제
-        newsfeedLikeRepository.deleteByUserIdAndNewsfeedId(userId, newsfeedId);
-        // 뉴스피드 엔티티에 있는 좋아요 수 수동으로 제거
-        newsfeed.removeNewsfeedLike();
+        // 뉴스피드에서 좋아요 제거
+        newsfeed.removeNewsfeedLike(newsfeedLike);
+        newsfeedLikeRepository.delete(newsfeedLike);
+        newsfeedRepository.save(newsfeed);
 
         // 좋아요 수 조회
         int likesCount = newsfeedLikeRepository.countByNewsfeedId(newsfeedId);
         return new NewsfeedLikeResponseDto("성공적으로 좋아요를 취소했습니다", newsfeedId, userId, likesCount);
+    }
+
+    /**
+     * 좋아요 수 조회
+     * @param newsfeedId 뉴스피드 ID
+     * @return 좋아요 수
+     */
+    public int getLikesCount(Long newsfeedId) {
+        // 특정 뉴스피드에 대한 좋아요 수를 리포지토리에서 조회하여 반환
+        return newsfeedLikeRepository.countByNewsfeedId(newsfeedId);
     }
 }

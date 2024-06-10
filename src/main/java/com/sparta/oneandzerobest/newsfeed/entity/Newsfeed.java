@@ -49,8 +49,8 @@ public class Newsfeed extends TimeStamp {
         this.likeCount++;
     }
 
-    public void removeNewsfeedLike(){
+    public void removeNewsfeedLike(NewsfeedLike newsfeedLike) {
+        this.newsfeedLikeList.remove(newsfeedLike);
         this.likeCount--;
     }
-
 }
