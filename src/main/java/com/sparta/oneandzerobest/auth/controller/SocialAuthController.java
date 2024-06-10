@@ -3,9 +3,9 @@ package com.sparta.oneandzerobest.auth.controller;
 import com.sparta.oneandzerobest.auth.entity.User;
 import com.sparta.oneandzerobest.auth.service.UserService;
 import com.sparta.oneandzerobest.auth.social.github.GitHubServiceImpl;
-import com.sparta.oneandzerobest.auth.social.service.GoogleServiceImpl;
+import com.sparta.oneandzerobest.auth.social.google.GoogleServiceImpl;
 
-import com.sparta.oneandzerobest.auth.social.service.KakaoServiceImpl;
+import com.sparta.oneandzerobest.auth.social.kakao.KakaoServiceImpl;
 import com.sparta.oneandzerobest.auth.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

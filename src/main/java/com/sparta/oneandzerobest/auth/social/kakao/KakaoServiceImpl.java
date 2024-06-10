@@ -1,5 +1,6 @@
-package com.sparta.oneandzerobest.auth.social.service;
+package com.sparta.oneandzerobest.auth.social.kakao;
 
+import com.sparta.oneandzerobest.auth.social.service.AbstractOAuthService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
