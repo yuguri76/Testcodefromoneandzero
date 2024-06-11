@@ -33,10 +33,10 @@
 
 ---
 ## 📋ERD
-<img width="700" alt="image" src="https://github.com/OneAndZeroAreEnough/OneAndZeroBest/assets/85047035/f80cc21e-d7dd-4b77-8189-545cd9330e00">
+<img width="800" alt="image" src="https://github.com/OneAndZeroAreEnough/OneAndZeroBest/assets/85047035/f80cc21e-d7dd-4b77-8189-545cd9330e00">
 
 ## ✔️시스템 아키텍처
-<img width="700" alt="image" src="https://github.com/OneAndZeroAreEnough/OneAndZeroBest/assets/85047035/ab760e40-a2c0-4333-908b-2bbe825b4d95">
+<img width="800" alt="image" src="https://github.com/OneAndZeroAreEnough/OneAndZeroBest/assets/85047035/ab760e40-a2c0-4333-908b-2bbe825b4d95">
 
 
 
