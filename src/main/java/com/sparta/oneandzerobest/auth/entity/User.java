@@ -14,7 +14,9 @@ import java.util.Collections;
 @Entity
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "users")
+@Builder
 public class User implements UserDetails { // Spring Security의 UserDetails
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -139,4 +141,5 @@ public class User implements UserDetails { // Spring Security의 UserDetails
     public void updatePassword(String password) {
         this.password = password;
     }
+
 }

@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -36,6 +37,14 @@ public class Comment extends TimeStamp {
      * @param content 댓글의 내용
      */
     public Comment(Long newsfeedId, Long userId, String content) {
+        this.newsfeedId = newsfeedId;
+        this.userId = userId;
+        this.content = content;
+    }
+
+    @Builder
+    public Comment(Long id, Long newsfeedId, Long userId, String content) {
+        this.id = id;
         this.newsfeedId = newsfeedId;
         this.userId = userId;
         this.content = content;

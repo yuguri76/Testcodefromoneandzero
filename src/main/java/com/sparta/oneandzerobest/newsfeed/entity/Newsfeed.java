@@ -9,15 +9,15 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Getter
-@Setter
 @NoArgsConstructor
 public class Newsfeed extends TimeStamp {
 
@@ -34,14 +34,20 @@ public class Newsfeed extends TimeStamp {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<NewsfeedLike> newsfeedLikeList = new ArrayList<>();
 
-    public Newsfeed(Long userid, String content) {
+    @Builder
+    public Newsfeed(Long id, Long userid, String content) {
+        this.id = id;
         this.userid = userid;
+        this.content = content;
+    }
+
+
+    public void setContent(String content) {
         this.content = content;
     }
 
     public void setImage(Image image) {
         this.imageList.add(image);
-
     }
 
     public void setNewsfeedLike(NewsfeedLike newsfeedLike) {

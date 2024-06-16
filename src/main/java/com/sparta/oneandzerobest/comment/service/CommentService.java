@@ -17,28 +17,20 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * CommentService는 댓글 관련 비즈니스 로직을 처리
- */
 @Service
 public class CommentService {
 
-    @Autowired
-    private CommentRepository commentRepository;
+    private final CommentRepository commentRepository;
+    private final UserRepository userRepository;
+    private final JwtUtil jwtUtil;
 
     @Autowired
-    private UserRepository userRepository;
+    public CommentService(CommentRepository commentRepository, UserRepository userRepository, JwtUtil jwtUtil) {
+        this.commentRepository = commentRepository;
+        this.userRepository = userRepository;
+        this.jwtUtil = jwtUtil;
+    }
 
-    @Autowired
-    private JwtUtil jwtUtil;
-
-    /**
-     * 뉴스피드에 댓글을 추가
-     * @param newsfeedId 뉴스피드 ID
-     * @param requestDto 댓글 작성 요청 DTO
-     * @param token JWT 토큰
-     * @return 생성된 댓글의 응답 DTO
-     */
     @Transactional
     public CommentResponseDto addComment(Long newsfeedId, CommentRequestDto requestDto, String token) {
         Long userId = validateToken(token);
@@ -47,12 +39,6 @@ public class CommentService {
         return new CommentResponseDto(comment);
     }
 
-    /**
-     * 뉴스피드의 모든 댓글을 조회
-     * @param newsfeedId 뉴스피드 ID
-     * @param token JWT 토큰
-     * @return 댓글 응답 DTO 리스트
-     */
     @Transactional(readOnly = true)
     public List<CommentResponseDto> getAllComments(Long newsfeedId, String token) {
         validateToken(token);
@@ -62,14 +48,6 @@ public class CommentService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * 특정 댓글을 수정
-     * @param newsfeedId 뉴스피드 ID
-     * @param commentId 댓글 ID
-     * @param requestDto 댓글 수정 요청 DTO
-     * @param token JWT 토큰
-     * @return 수정된 댓글의 응답 DTO
-     */
     @Transactional
     public CommentResponseDto updateComment(Long newsfeedId, Long commentId, CommentRequestDto requestDto, String token) {
         Long userId = validateToken(token);
@@ -81,12 +59,6 @@ public class CommentService {
         return new CommentResponseDto(comment);
     }
 
-    /**
-     * 특정 댓글을 삭제
-     * @param newsfeedId 뉴스피드 ID
-     * @param commentId 댓글 ID
-     * @param token JWT 토큰
-     */
     @Transactional
     public void deleteComment(Long newsfeedId, Long commentId, String token) {
         Long userId = validateToken(token);
@@ -95,11 +67,6 @@ public class CommentService {
         commentRepository.delete(comment);
     }
 
-    /**
-     * 토큰을 검증하고 사용자 ID를 반환하는 메소드
-     * @param token JWT 토큰
-     * @return 사용자 ID
-     */
     private Long validateToken(String token) {
         String username = jwtUtil.getUsernameFromToken(token.replace("Bearer ", ""));
         User user = userRepository.findByUsername(username)

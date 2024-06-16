@@ -38,4 +38,17 @@ public class JwtConfig {
     public void init() {
         JwtUtil.init(this);
     }
+
+    // Setters for testing purposes
+    public void setSecretKey(String secretKey) {
+        this.secretKey = secretKey;
+    }
+
+    public void setTokenExpiration(long tokenExpiration) {
+        this.tokenExpiration = tokenExpiration;
+    }
+
+    public void setRefreshTokenExpiration(long refreshTokenExpiration) {
+        this.refreshTokenExpiration = refreshTokenExpiration;
+    }
 }
